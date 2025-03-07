@@ -1,4 +1,4 @@
-package com.opencqrs.controllers;
+package com.opencqrs.rest;
 
 public record PurchaseDetail(
         String isbn,

@@ -1,6 +1,4 @@
-package com.opencqrs.controllers;
-
-import java.util.UUID;
+package com.opencqrs.rest;
 
 public record BorrowDetail(
         String id,

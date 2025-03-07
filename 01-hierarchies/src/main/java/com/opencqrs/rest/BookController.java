@@ -1,4 +1,4 @@
-package com.opencqrs.controllers;
+package com.opencqrs.rest;
 
 import com.opencqrs.commands.BorrowBookCommand;
 import com.opencqrs.commands.PurchaseBookCommand;
