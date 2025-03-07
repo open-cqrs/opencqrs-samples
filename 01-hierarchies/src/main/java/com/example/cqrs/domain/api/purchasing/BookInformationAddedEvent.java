@@ -1,6 +1,6 @@
-package com.opencqrs.rest;
+package com.example.cqrs.domain.api.purchasing;
 
-public record PurchaseDetail(
+public record BookInformationAddedEvent(
         String isbn,
         String title,
         String author,

@@ -1,4 +1,4 @@
-package com.opencqrs.domain;
+package com.example.cqrs.domain;
 
 
 import java.time.Instant;

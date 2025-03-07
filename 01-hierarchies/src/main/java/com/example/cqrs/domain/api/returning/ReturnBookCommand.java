@@ -1,10 +1,10 @@
-package com.opencqrs.domain.api.borrowing;
+package com.example.cqrs.domain.api.returning;
 
 import de.dxfrontiers.cqrs.framework.command.Command;
 
 import java.util.UUID;
 
-public record BorrowBookCommand(
+public record ReturnBookCommand(
         UUID id,
         String isbn
 ) implements Command {

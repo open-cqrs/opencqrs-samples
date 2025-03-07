@@ -1,4 +1,4 @@
-package com.opencqrs;
+package com.example.cqrs;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

@@ -1,4 +1,4 @@
-package com.opencqrs.rest;
+package com.example.cqrs.rest;
 
 public record BorrowDetail(
         String id,

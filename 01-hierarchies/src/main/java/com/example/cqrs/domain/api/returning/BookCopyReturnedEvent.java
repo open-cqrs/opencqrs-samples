@@ -1,4 +1,4 @@
-package com.opencqrs.domain.api.returning;
+package com.example.cqrs.domain.api.returning;
 
 import java.util.UUID;
 

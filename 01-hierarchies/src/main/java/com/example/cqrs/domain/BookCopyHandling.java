@@ -1,10 +1,10 @@
-package com.opencqrs.domain;
+package com.example.cqrs.domain;
 
-import com.opencqrs.domain.api.borrowing.BorrowBookCommand;
-import com.opencqrs.domain.api.returning.ReturnBookCommand;
-import com.opencqrs.domain.api.purchasing.BookCopyAddedEvent;
-import com.opencqrs.domain.api.borrowing.BookCopyLentEvent;
-import com.opencqrs.domain.api.returning.BookCopyReturnedEvent;
+import com.example.cqrs.domain.api.borrowing.BorrowBookCommand;
+import com.example.cqrs.domain.api.returning.ReturnBookCommand;
+import com.example.cqrs.domain.api.purchasing.BookCopyAddedEvent;
+import com.example.cqrs.domain.api.borrowing.BookCopyLentEvent;
+import com.example.cqrs.domain.api.returning.BookCopyReturnedEvent;
 import de.dxfrontiers.cqrs.framework.command.CommandEventPublisher;
 import de.dxfrontiers.cqrs.framework.command.CommandHandlerConfiguration;
 import de.dxfrontiers.cqrs.framework.command.CommandHandling;
