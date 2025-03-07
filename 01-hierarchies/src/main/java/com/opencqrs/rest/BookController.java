@@ -1,8 +1,8 @@
 package com.opencqrs.rest;
 
-import com.opencqrs.commands.BorrowBookCommand;
-import com.opencqrs.commands.PurchaseBookCommand;
-import com.opencqrs.commands.ReturnBookCommand;
+import com.opencqrs.domain.api.borrowing.BorrowBookCommand;
+import com.opencqrs.domain.api.purchasing.PurchaseBookCommand;
+import com.opencqrs.domain.api.returning.ReturnBookCommand;
 import de.dxfrontiers.cqrs.framework.command.CommandRouter;
 import org.springframework.web.bind.annotation.*;
 

@@ -1,4 +1,4 @@
-package com.opencqrs.commands;
+package com.opencqrs.domain.api.returning;
 
 import de.dxfrontiers.cqrs.framework.command.Command;
 

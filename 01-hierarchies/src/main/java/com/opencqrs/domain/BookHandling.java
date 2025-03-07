@@ -1,9 +1,8 @@
-package com.opencqrs.handling;
+package com.opencqrs.domain;
 
-import com.opencqrs.commands.PurchaseBookCommand;
-import com.opencqrs.domain.Book;
-import com.opencqrs.events.BookCopyAddedEvent;
-import com.opencqrs.events.BookInformationAddedEvent;
+import com.opencqrs.domain.api.purchasing.PurchaseBookCommand;
+import com.opencqrs.domain.api.purchasing.BookCopyAddedEvent;
+import com.opencqrs.domain.api.purchasing.BookInformationAddedEvent;
 import de.dxfrontiers.cqrs.framework.command.CommandEventPublisher;
 import de.dxfrontiers.cqrs.framework.command.CommandHandlerConfiguration;
 import de.dxfrontiers.cqrs.framework.command.CommandHandling;

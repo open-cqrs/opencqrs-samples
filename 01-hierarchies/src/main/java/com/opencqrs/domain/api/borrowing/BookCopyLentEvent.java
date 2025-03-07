@@ -1,4 +1,4 @@
-package com.opencqrs.events;
+package com.opencqrs.domain.api.borrowing;
 
 import java.time.Instant;
 import java.util.UUID;

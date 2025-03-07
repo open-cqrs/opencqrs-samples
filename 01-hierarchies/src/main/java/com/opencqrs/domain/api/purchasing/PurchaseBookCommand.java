@@ -1,4 +1,4 @@
-package com.opencqrs.commands;
+package com.opencqrs.domain.api.purchasing;
 
 import de.dxfrontiers.cqrs.framework.command.Command;
 import java.util.UUID;

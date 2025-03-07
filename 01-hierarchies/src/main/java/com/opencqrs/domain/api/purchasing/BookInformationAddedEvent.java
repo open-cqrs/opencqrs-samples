@@ -1,6 +1,4 @@
-package com.opencqrs.events;
-
-import java.util.UUID;
+package com.opencqrs.domain.api.purchasing;
 
 public record BookInformationAddedEvent(
         String isbn,

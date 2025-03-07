@@ -1,4 +1,4 @@
-package com.opencqrs.events;
+package com.opencqrs.domain.api.purchasing;
 
 import java.util.UUID;
 
