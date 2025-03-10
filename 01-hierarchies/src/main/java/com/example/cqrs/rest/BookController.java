@@ -28,9 +28,7 @@ public class BookController {
                         detail.numPages()
                 );
 
-        commandRouter.send(command);
-
-        return command.id();
+        return commandRouter.send(command);
     }
 
     @PostMapping("/borrow")

@@ -11,6 +11,6 @@ public record BorrowBookCommand(
 
     @Override
     public String getSubject() {
-        return "/books/" + isbn() + "/exemplars/" + id();
+        return "/books/" + isbn() + "/copies/" + id();
     }
 }

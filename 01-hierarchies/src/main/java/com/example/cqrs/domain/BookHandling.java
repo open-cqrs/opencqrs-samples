@@ -9,12 +9,13 @@ import de.dxfrontiers.cqrs.framework.command.CommandHandling;
 import de.dxfrontiers.cqrs.framework.command.StateRebuilding;
 
 import java.util.Collections;
+import java.util.UUID;
 
 @CommandHandlerConfiguration
 public class BookHandling {
 
     @CommandHandling
-    public void handle(Book book, PurchaseBookCommand command, CommandEventPublisher<Void> publisher) {
+    public UUID handle(Book book, PurchaseBookCommand command, CommandEventPublisher<Void> publisher) {
 
         if (book == null) {
             publisher.publish(
@@ -27,11 +28,11 @@ public class BookHandling {
             );
         }
 
-        publisher.publish(
-                new BookCopyAddedEvent(
-                        command.id()
-                )
-        );
+        var id = UUID.randomUUID();
+
+        publisher.publishRelative("copies/" + id, new BookCopyAddedEvent(id));
+
+        return id;
     }
 
     @StateRebuilding
