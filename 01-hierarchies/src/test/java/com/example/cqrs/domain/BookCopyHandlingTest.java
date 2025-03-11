@@ -89,7 +89,6 @@ public class BookCopyHandlingTest {
 
         var id = UUID.randomUUID();
         var isbn = "012-34567890";
-        var dueAt = Instant.now().truncatedTo(ChronoUnit.DAYS).plus(30, ChronoUnit.DAYS);
 
         fixture
                 .givenState(

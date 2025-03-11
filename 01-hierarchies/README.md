@@ -1,23 +1,50 @@
 
-# Subject Hierarchies
+# Sample 01 - Hierarchical Domains and filtered Event-Streams
 
 This sample app will showcase, how our framework handles event sourcing in the context of hierarchically dependent domain entities:
 
-- Books
-- Rentals
+- Book: Represents a specific work available at a library
+- BookCopy: Represents a physical copy of a Book which can be lent out to readers at the library
 
-Specifically, the framework allows us to source different write-models of our entities from different (smaller) subsets of the event trail, depending on whether we need information only about a specific rental or the book as a whole.
+Each book can have one or more copies associated with it.
 
-## Commands/Events
+In the OpenCQRS-Framework, such entity relationships are reflected by a command's subject, which are url-like strings which can represent hierarchical relationships.
 
-For the purpose of this app, we introduce three basic actions, each of which is represented by exactly one Command and Event
+Using this mechanism, the state aggregation mechanism is able to filter out and source only the events specifically relevant to the write-model instance in question, e.g.
 
-- The Library purchasing a book (Subject: "/books/{ISBN of the book}")
-- A reader renting a book (Subject: "/books/{ISBN of the book}/rentals/{ID of the rental process}")
-- A reader returning a lent book (Subject: "/books/{ISBN of the book}/rentals/{ID of the rental process}")
+When lending a copy XY of the book with ISBN 123-4567890, updating the write-model's state for copy XY *only* requires the sourcing of the events with subject:
 
-## Domain Entities
+```
+/books/123-4567890/copy/XY
+```
 
-The first Domain entity, which we track as subjects in our commands/events are Books. The Book-class contains information such as a book's ISBN, title and author.
+All other events, such as those pertaining to /books/123-4567890 in general or any other of its copies are ignored.
 
-The second entity are Rentals. The Rental-class tracks the ID of the renting reader, the due date of the rental and the state of a renting process (active, overdue, returned)
+When dealing with long event-streams, this will noticeably decrease the amount of events that will have to be loaded, increasing performance.
+
+## Commands and Events
+
+For the purpose of this app, we introduce a set of basic commands with corresponding events:
+
+### PurchaseBookCommand
+
+The Library purchasing a new copy of a given book. The Subject of the command is of the form:
+
+```
+/books/{isbn of book}
+```
+
+On success, this yields the following Events:
+
+- BookInformationAddedEvent: An entry containing general information about the book is added to the system, iff. it was not present yet.
+- BookCopyAddedEvent: The purchased copy of the book has been added to the library and made available for lending.
+
+### BorrowBookCommand and ReturnBookCommand
+
+A reader borrowing and eventually returning a given copy of the book. The Subject of the commands is of the form:
+
+```
+/books/{isbn of book}/copies/{id of copy}
+```
+
+On success, they yield a BookCopyLentEvent and a BookCopyReturnedEvent, respectively
