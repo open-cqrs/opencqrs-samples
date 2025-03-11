@@ -3,7 +3,7 @@ package com.example.cqrs.domain;
 import com.example.cqrs.domain.api.purchasing.BookCopyAddedEvent;
 import com.example.cqrs.domain.api.purchasing.BookInformationAddedEvent;
 import com.example.cqrs.domain.api.purchasing.PurchaseBookCommand;
-import com.example.cqrs.services.UUIDGeneratorService;
+import com.example.cqrs.services.UUIDGenerator;
 import de.dxfrontiers.cqrs.framework.command.CommandHandlingTest;
 import de.dxfrontiers.cqrs.framework.command.CommandHandlingTestFixture;
 import org.junit.jupiter.api.Test;
@@ -20,7 +20,7 @@ import java.util.UUID;
 public class BookHandlingTest {
 
     @MockitoBean
-    private UUIDGeneratorService uuidGen;
+    private UUIDGenerator uuidGen;
 
     @Test
     public void willAddBookInformation(@Autowired CommandHandlingTestFixture<Book, PurchaseBookCommand, UUID> fixture) {

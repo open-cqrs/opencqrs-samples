@@ -3,7 +3,7 @@ package com.example.cqrs.domain;
 import com.example.cqrs.domain.api.purchasing.PurchaseBookCommand;
 import com.example.cqrs.domain.api.purchasing.BookCopyAddedEvent;
 import com.example.cqrs.domain.api.purchasing.BookInformationAddedEvent;
-import com.example.cqrs.services.UUIDGeneratorService;
+import com.example.cqrs.services.UUIDGenerator;
 import de.dxfrontiers.cqrs.framework.command.CommandEventPublisher;
 import de.dxfrontiers.cqrs.framework.command.CommandHandlerConfiguration;
 import de.dxfrontiers.cqrs.framework.command.CommandHandling;
@@ -16,10 +16,8 @@ import java.util.UUID;
 @CommandHandlerConfiguration
 public class BookHandling {
 
-    @Autowired private UUIDGeneratorService uuidGen;
-
     @CommandHandling
-    public UUID handle(Book book, PurchaseBookCommand command, CommandEventPublisher<Book> publisher) {
+    public UUID handle(Book book, PurchaseBookCommand command, CommandEventPublisher<Book> publisher, @Autowired UUIDGenerator uuidGen) {
 
         if (book == null) {
             publisher.publish(

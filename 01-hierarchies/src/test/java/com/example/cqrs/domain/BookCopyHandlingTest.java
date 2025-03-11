@@ -4,12 +4,10 @@ import com.example.cqrs.domain.api.borrowing.BookCopyLentEvent;
 import com.example.cqrs.domain.api.borrowing.BorrowBookCommand;
 import com.example.cqrs.domain.api.returning.BookCopyReturnedEvent;
 import com.example.cqrs.domain.api.returning.ReturnBookCommand;
-import com.example.cqrs.services.UUIDGeneratorService;
 import de.dxfrontiers.cqrs.framework.command.CommandHandlingTest;
 import de.dxfrontiers.cqrs.framework.command.CommandHandlingTestFixture;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -17,9 +15,6 @@ import java.util.UUID;
 
 @CommandHandlingTest
 public class BookCopyHandlingTest {
-
-    @MockitoBean
-    private UUIDGeneratorService uuidGen;
 
     @Test
     public void willLendBookCopy(@Autowired CommandHandlingTestFixture<BookCopy, BorrowBookCommand, Void> fixture) {
