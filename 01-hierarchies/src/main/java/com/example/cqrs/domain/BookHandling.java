@@ -3,16 +3,20 @@ package com.example.cqrs.domain;
 import com.example.cqrs.domain.api.purchasing.PurchaseBookCommand;
 import com.example.cqrs.domain.api.purchasing.BookCopyAddedEvent;
 import com.example.cqrs.domain.api.purchasing.BookInformationAddedEvent;
+import com.example.cqrs.services.UUIDGeneratorService;
 import de.dxfrontiers.cqrs.framework.command.CommandEventPublisher;
 import de.dxfrontiers.cqrs.framework.command.CommandHandlerConfiguration;
 import de.dxfrontiers.cqrs.framework.command.CommandHandling;
 import de.dxfrontiers.cqrs.framework.command.StateRebuilding;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Collections;
 import java.util.UUID;
 
 @CommandHandlerConfiguration
 public class BookHandling {
+
+    @Autowired private UUIDGeneratorService uuidGen;
 
     @CommandHandling
     public UUID handle(Book book, PurchaseBookCommand command, CommandEventPublisher<Book> publisher) {
@@ -28,7 +32,7 @@ public class BookHandling {
             );
         }
 
-        var id = UUID.randomUUID();
+        var id = uuidGen.getNextUUID();
 
         publisher.publishRelative("copies/" + id, new BookCopyAddedEvent(id));
 
