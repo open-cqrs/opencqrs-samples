@@ -15,7 +15,7 @@ import java.util.UUID;
 public class BookHandling {
 
     @CommandHandling
-    public UUID handle(Book book, PurchaseBookCommand command, CommandEventPublisher<Void> publisher) {
+    public UUID handle(Book book, PurchaseBookCommand command, CommandEventPublisher<Book> publisher) {
 
         if (book == null) {
             publisher.publish(

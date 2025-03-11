@@ -22,6 +22,7 @@ dependencies {
     implementation("de.dxfrontiers.cqrs:cqrs-framework-spring-boot-starter:1.0.0")
     testImplementation("de.dxfrontiers.cqrs:cqrs-framework-test:1.0.0")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.mockito:mockito-core:2.1.0")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 

@@ -8,7 +8,7 @@ public record Book(
         String isbn,
         String title,
         String author,
-        Long numPages,
+        int numPages,
         Set<UUID> exemplars
 ) {
     public Book withAddedCopy(UUID newExemplarId) {
