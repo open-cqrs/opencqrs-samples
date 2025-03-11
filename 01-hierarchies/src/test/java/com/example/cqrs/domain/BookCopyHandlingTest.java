@@ -2,7 +2,6 @@ package com.example.cqrs.domain;
 
 import com.example.cqrs.domain.api.borrowing.BookCopyLentEvent;
 import com.example.cqrs.domain.api.borrowing.BorrowBookCommand;
-import com.example.cqrs.domain.api.purchasing.PurchaseBookCommand;
 import com.example.cqrs.domain.api.returning.BookCopyReturnedEvent;
 import com.example.cqrs.domain.api.returning.ReturnBookCommand;
 import com.example.cqrs.services.UUIDGeneratorService;
@@ -31,7 +30,7 @@ public class BookCopyHandlingTest {
 
         fixture
                 .givenState(
-                        new BookCopy(id, null, false)
+                        new BookCopy(id, null)
                 )
                 .when(
                         new BorrowBookCommand(id, isbn)
@@ -41,7 +40,7 @@ public class BookCopyHandlingTest {
                         new BookCopyLentEvent(id, isbn, dueAt)
                 )
                 .expectState(
-                        new BookCopy(id, dueAt, true)
+                        new BookCopy(id, dueAt)
                 );
     }
 
@@ -54,7 +53,7 @@ public class BookCopyHandlingTest {
 
         fixture
                 .givenState(
-                        new BookCopy(id, dueAt, true)
+                        new BookCopy(id, dueAt)
                 )
                 .when(
                         new BorrowBookCommand(id, isbn)
@@ -71,7 +70,7 @@ public class BookCopyHandlingTest {
 
         fixture
                 .givenState(
-                        new BookCopy(id, dueAt, true)
+                        new BookCopy(id, dueAt)
                 )
                 .when(
                         new ReturnBookCommand(id, isbn)
@@ -81,7 +80,7 @@ public class BookCopyHandlingTest {
                         new BookCopyReturnedEvent(id, isbn)
                 )
                 .expectState(
-                        new BookCopy(id, null, false)
+                        new BookCopy(id, null)
                 );
     }
 
@@ -94,7 +93,7 @@ public class BookCopyHandlingTest {
 
         fixture
                 .givenState(
-                        new BookCopy(id, null, false)
+                        new BookCopy(id, null)
                 )
                 .when(
                         new ReturnBookCommand(id, isbn)
