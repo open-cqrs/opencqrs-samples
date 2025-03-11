@@ -17,19 +17,17 @@ import java.util.Random;
 @CommandHandlerConfiguration
 public class BookCopyHandling {
 
-    private static final Random random = new Random();
-
     @StateRebuilding
     public BookCopy on(BookCopyAddedEvent event) {
         return new BookCopy(event.id(), null, false);
     }
 
     @CommandHandling
-    public void handle(BookCopy bookCopy, BorrowBookCommand command, CommandEventPublisher<Book> publisher) {
+    public void handle(BookCopy bookCopy, BorrowBookCommand command, CommandEventPublisher<BookCopy> publisher) {
         if (bookCopy.isLent()) {
             throw new IllegalStateException("Book is already lent!");
         }
-        var dueAt = Instant.now().plus(random.ints(7, 30).findFirst().getAsInt(), ChronoUnit.DAYS);
+        var dueAt = Instant.now().truncatedTo(ChronoUnit.DAYS).plus(30, ChronoUnit.DAYS);
 
         publisher.publish(
                 new BookCopyLentEvent(command.id(), command.isbn(), dueAt)
@@ -38,11 +36,13 @@ public class BookCopyHandling {
 
     @StateRebuilding
     public BookCopy on(BookCopy bookCopy, BookCopyLentEvent event) {
-        return bookCopy.withRentalStatus(true);
+        return bookCopy
+                .withDueDate(event.returnDueAt())
+                .withRentalStatus(true);
     }
 
     @CommandHandling
-    public void handle(BookCopy bookCopy, ReturnBookCommand command, CommandEventPublisher<Book> publisher) {
+    public void handle(BookCopy bookCopy, ReturnBookCommand command, CommandEventPublisher<BookCopy> publisher) {
         if (!bookCopy.isLent()) {
             throw new IllegalStateException("Book is not lent!");
         }
@@ -53,7 +53,11 @@ public class BookCopyHandling {
     }
 
     @StateRebuilding
-    public BookCopy on(BookCopy bookCopy, BookCopyReturnedEvent event) {
-        return bookCopy.withRentalStatus(false);
+    public BookCopy on(BookCopyReturnedEvent event) {
+        return new BookCopy(
+                event.id(),
+                null,
+                false
+        );
     }
 }

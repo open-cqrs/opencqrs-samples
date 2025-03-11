@@ -11,10 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import static org.mockito.Mockito.doReturn;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.UUID;
-
-import static org.mockito.ArgumentMatchers.any;
 
 @CommandHandlingTest
 public class BookHandlingTest {
@@ -38,24 +38,29 @@ public class BookHandlingTest {
                 .expectEvents(
                         new BookInformationAddedEvent("012-34567890", "JRR Tolkien", "LOTR", 435),
                         new BookCopyAddedEvent(id)
-                );
+                )
+                .expectState(new Book("012-34567890", "JRR Tolkien", "LOTR", 435, Collections.singleton(id)));
     }
 
     @Test
     public void willNotAddBookInformationWhenItAlreadyExists(@Autowired CommandHandlingTestFixture<Book, PurchaseBookCommand, UUID> fixture) {
 
-        var id = UUID.randomUUID();
+        var initialId = UUID.randomUUID();
+        var addedId = UUID.randomUUID();
 
-        doReturn(id)
+        doReturn(addedId)
                 .when(uuidGen)
                 .getNextUUID();
 
         fixture
                 .givenState(
-                        new Book("012-34567890", "JRR Tolkien", "LOTR", 435, Collections.singleton(UUID.randomUUID()))
+                        new Book("012-34567890", "JRR Tolkien", "LOTR", 435, Collections.singleton(initialId))
                 )
                 .when(new PurchaseBookCommand("012-34567890", "JRR Tolkien", "LOTR", 435))
-                .expectSingleEvent(new BookCopyAddedEvent(id));
+                .expectSingleEvent(new BookCopyAddedEvent(addedId))
+                .expectState(
+                        new Book("012-34567890", "JRR Tolkien", "LOTR", 435, new HashSet<>(Arrays.asList(initialId, addedId)))
+                );
     }
 
 }
