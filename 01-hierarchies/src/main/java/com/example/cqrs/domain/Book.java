@@ -9,10 +9,10 @@ public record Book(
         String title,
         String author,
         int numPages,
-        Set<UUID> exemplars
+        Set<UUID> copies
 ) {
     public Book withAddedCopy(UUID newExemplarId) {
-        var updatedExemplars = new HashSet<UUID>(exemplars);
+        var updatedExemplars = new HashSet<UUID>(copies);
         updatedExemplars.add(newExemplarId);
 
         return new Book(

@@ -63,4 +63,19 @@ public class BookHandlingTest {
                 );
     }
 
+    @Test
+    public void willRejectPurchaseIfTooManyCopies(@Autowired CommandHandlingTestFixture<Book, PurchaseBookCommand, UUID> fixture) {
+
+        var id1 = UUID.randomUUID();
+        var id2 = UUID.randomUUID();
+        var id3 = UUID.randomUUID();
+
+        fixture
+                .givenState(
+                        new Book("012-34567890", "JRR Tolkien", "LOTR", 435, new HashSet<>(Arrays.asList(id1, id2, id3)))
+                )
+                .when(new PurchaseBookCommand("012-34567890", "JRR Tolkien", "LOTR", 435))
+                .expectUnsuccessfulExecution();
+    }
+
 }

@@ -28,6 +28,10 @@ public class BookHandling {
                             command.numPages()
                     )
             );
+        } else {
+            if (book.copies().size() >= 3) {
+                throw new IllegalStateException("Maximum number of copies per book reached (3)");
+            }
         }
 
         var id = uuidGen.getNextUUID();
