@@ -38,8 +38,7 @@ public class BookHandlingTest {
                 .expectEvents(
                         new BookInformationAddedEvent("012-34567890", "JRR Tolkien", "LOTR", 435),
                         new BookCopyAddedEvent(id)
-                )
-                .expectState(new Book("012-34567890", "JRR Tolkien", "LOTR", 435, Collections.singleton(id)));
+                );
     }
 
     @Test
@@ -53,14 +52,12 @@ public class BookHandlingTest {
                 .getNextUUID();
 
         fixture
-                .givenState(
-                        new Book("012-34567890", "JRR Tolkien", "LOTR", 435, Collections.singleton(initialId))
+                .given(
+                        new BookInformationAddedEvent("012-34567890", "JRR Tolkien", "LOTR", 435),
+                        new BookCopyAddedEvent(initialId)
                 )
                 .when(new PurchaseBookCommand("012-34567890", "JRR Tolkien", "LOTR", 435))
-                .expectSingleEvent(new BookCopyAddedEvent(addedId))
-                .expectState(
-                        new Book("012-34567890", "JRR Tolkien", "LOTR", 435, new HashSet<>(Arrays.asList(initialId, addedId)))
-                );
+                .expectSingleEvent(new BookCopyAddedEvent(addedId));
     }
 
     @Test
@@ -71,8 +68,11 @@ public class BookHandlingTest {
         var id3 = UUID.randomUUID();
 
         fixture
-                .givenState(
-                        new Book("012-34567890", "JRR Tolkien", "LOTR", 435, new HashSet<>(Arrays.asList(id1, id2, id3)))
+                .given(
+                        new BookInformationAddedEvent("012-34567890", "JRR Tolkien", "LOTR", 435),
+                        new BookCopyAddedEvent(id1),
+                        new BookCopyAddedEvent(id2),
+                        new BookCopyAddedEvent(id3)
                 )
                 .when(new PurchaseBookCommand("012-34567890", "JRR Tolkien", "LOTR", 435))
                 .expectUnsuccessfulExecution();
