@@ -2,6 +2,7 @@ package com.example.cqrs.domain;
 
 import com.example.cqrs.domain.api.borrowing.BookCopyLentEvent;
 import com.example.cqrs.domain.api.borrowing.BorrowBookCommand;
+import com.example.cqrs.domain.api.purchasing.BookCopyAddedEvent;
 import com.example.cqrs.domain.api.returning.BookCopyReturnedEvent;
 import com.example.cqrs.domain.api.returning.ReturnBookCommand;
 import de.dxfrontiers.cqrs.framework.command.CommandHandlingTest;
@@ -24,8 +25,8 @@ public class BookCopyHandlingTest {
         var dueAt = Instant.now().truncatedTo(ChronoUnit.DAYS).plus(30, ChronoUnit.DAYS);
 
         fixture
-                .givenState(
-                        new BookCopy(id, null)
+                .given(
+                        new BookCopyAddedEvent(id)
                 )
                 .when(
                         new BorrowBookCommand(id, isbn)
@@ -33,9 +34,6 @@ public class BookCopyHandlingTest {
                 .expectSuccessfulExecution()
                 .expectSingleEvent(
                         new BookCopyLentEvent(id, isbn, dueAt)
-                )
-                .expectState(
-                        new BookCopy(id, dueAt)
                 );
     }
 
@@ -47,8 +45,9 @@ public class BookCopyHandlingTest {
         var dueAt = Instant.now().truncatedTo(ChronoUnit.DAYS).plus(30, ChronoUnit.DAYS);
 
         fixture
-                .givenState(
-                        new BookCopy(id, dueAt)
+                .given(
+                        new BookCopyAddedEvent(id),
+                        new BookCopyLentEvent(id, isbn, dueAt)
                 )
                 .when(
                         new BorrowBookCommand(id, isbn)
@@ -64,8 +63,9 @@ public class BookCopyHandlingTest {
         var dueAt = Instant.now().truncatedTo(ChronoUnit.DAYS).plus(30, ChronoUnit.DAYS);
 
         fixture
-                .givenState(
-                        new BookCopy(id, dueAt)
+                .given(
+                        new BookCopyAddedEvent(id),
+                        new BookCopyLentEvent(id, isbn, dueAt)
                 )
                 .when(
                         new ReturnBookCommand(id, isbn)
@@ -73,9 +73,6 @@ public class BookCopyHandlingTest {
                 .expectSuccessfulExecution()
                 .expectSingleEvent(
                         new BookCopyReturnedEvent(id, isbn)
-                )
-                .expectState(
-                        new BookCopy(id, null)
                 );
     }
 
@@ -86,8 +83,8 @@ public class BookCopyHandlingTest {
         var isbn = "012-34567890";
 
         fixture
-                .givenState(
-                        new BookCopy(id, null)
+                .given(
+                        new BookCopyAddedEvent(id)
                 )
                 .when(
                         new ReturnBookCommand(id, isbn)
