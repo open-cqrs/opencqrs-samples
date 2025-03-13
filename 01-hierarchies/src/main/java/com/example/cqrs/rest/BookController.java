@@ -4,6 +4,7 @@ import com.example.cqrs.domain.api.borrowing.BorrowBookCommand;
 import com.example.cqrs.domain.api.purchasing.PurchaseBookCommand;
 import com.example.cqrs.domain.api.returning.ReturnBookCommand;
 import de.dxfrontiers.cqrs.framework.command.CommandRouter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -12,11 +13,7 @@ import java.util.UUID;
 @RequestMapping("/books")
 public class BookController {
 
-    private final CommandRouter commandRouter;
-
-    public BookController(CommandRouter commandRouter) {
-        this.commandRouter = commandRouter;
-    }
+    @Autowired private CommandRouter commandRouter;
 
     @PostMapping("/purchase")
     public UUID purchase(@RequestBody PurchaseDetail detail) {
