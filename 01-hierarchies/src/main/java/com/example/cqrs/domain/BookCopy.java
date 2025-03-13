@@ -11,6 +11,10 @@ public record BookCopy(
         Instant dueDate
 ) {
 
+    public BookCopy(UUID id) {
+        this(id, null);
+    }
+
     public boolean isLent() {
         return dueDate() != null;
     }
@@ -19,13 +23,6 @@ public record BookCopy(
         return new BookCopy(
                 id(),
                 dueDate
-        );
-    }
-
-    public BookCopy withRentalStatus(boolean status) {
-        return new BookCopy(
-                id(),
-                dueDate()
         );
     }
 }

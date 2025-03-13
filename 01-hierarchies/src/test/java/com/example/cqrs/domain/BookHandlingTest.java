@@ -57,6 +57,7 @@ public class BookHandlingTest {
                         new BookCopyAddedEvent(initialId)
                 )
                 .when(new PurchaseBookCommand("012-34567890", "JRR Tolkien", "LOTR", 435))
+                .expectSuccessfulExecution()
                 .expectSingleEvent(new BookCopyAddedEvent(addedId));
     }
 

@@ -19,7 +19,7 @@ public class BookCopyHandling {
 
     @StateRebuilding
     public BookCopy on(BookCopyAddedEvent event) {
-        return new BookCopy(event.id(), null);
+        return new BookCopy(event.id());
     }
 
     @CommandHandling
@@ -37,8 +37,7 @@ public class BookCopyHandling {
     @StateRebuilding
     public BookCopy on(BookCopy bookCopy, BookCopyLentEvent event) {
         return bookCopy
-                .withDueDate(event.returnDueAt())
-                .withRentalStatus(true);
+                .withDueDate(event.returnDueAt());
     }
 
     @CommandHandling
@@ -54,9 +53,6 @@ public class BookCopyHandling {
 
     @StateRebuilding
     public BookCopy on(BookCopyReturnedEvent event) {
-        return new BookCopy(
-                event.id(),
-                null
-        );
+        return new BookCopy(event.id());
     }
 }
