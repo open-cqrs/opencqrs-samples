@@ -3,7 +3,7 @@ package com.example.cqrs.domain;
 import com.example.cqrs.domain.api.purchasing.PurchaseBookCommand;
 import com.example.cqrs.domain.api.purchasing.BookCopyAddedEvent;
 import com.example.cqrs.domain.api.purchasing.BookInformationAddedEvent;
-import com.example.cqrs.services.UUIDGenerator;
+import com.example.cqrs.utils.UUIDGenerator;
 import de.dxfrontiers.cqrs.framework.command.CommandEventPublisher;
 import de.dxfrontiers.cqrs.framework.command.CommandHandlerConfiguration;
 import de.dxfrontiers.cqrs.framework.command.CommandHandling;

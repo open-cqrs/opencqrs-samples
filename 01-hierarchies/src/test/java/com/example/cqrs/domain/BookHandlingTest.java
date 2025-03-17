@@ -3,7 +3,7 @@ package com.example.cqrs.domain;
 import com.example.cqrs.domain.api.purchasing.BookCopyAddedEvent;
 import com.example.cqrs.domain.api.purchasing.BookInformationAddedEvent;
 import com.example.cqrs.domain.api.purchasing.PurchaseBookCommand;
-import com.example.cqrs.services.UUIDGenerator;
+import com.example.cqrs.utils.UUIDGenerator;
 import de.dxfrontiers.cqrs.framework.command.CommandHandlingTest;
 import de.dxfrontiers.cqrs.framework.command.CommandHandlingTestFixture;
 import org.junit.jupiter.api.Test;
@@ -11,9 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import static org.mockito.Mockito.doReturn;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.UUID;
 
 @CommandHandlingTest

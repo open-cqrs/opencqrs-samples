@@ -1,10 +1,10 @@
-package com.example.cqrs.services;
+package com.example.cqrs.utils;
 
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.util.UUID;
 
-@Service
+@Component
 public class UUIDGenerator {
     public UUID getNextUUID() {
         return UUID.randomUUID();
