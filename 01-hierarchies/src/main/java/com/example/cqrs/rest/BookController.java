@@ -1,6 +1,6 @@
 package com.example.cqrs.rest;
 
-import com.example.cqrs.domain.api.borrowing.BorrowBookCommand;
+import com.example.cqrs.domain.api.borrowing.LendBookCommand;
 import com.example.cqrs.domain.api.purchasing.PurchaseBookCommand;
 import com.example.cqrs.domain.api.returning.ReturnBookCommand;
 import de.dxfrontiers.cqrs.framework.command.CommandRouter;
@@ -31,10 +31,10 @@ public class BookController {
         return commandRouter.send(command);
     }
 
-    @PostMapping("/borrow")
+    @PostMapping("/lend")
     public void borrow(@RequestBody BorrowDetail detail) {
         var command =
-                new BorrowBookCommand(
+                new LendBookCommand(
                         UUID.fromString(detail.id()),
                         detail.isbn()
                 );

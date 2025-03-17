@@ -1,7 +1,7 @@
 package com.example.cqrs.domain;
 
 import com.example.cqrs.domain.api.borrowing.BookCopyLentEvent;
-import com.example.cqrs.domain.api.borrowing.BorrowBookCommand;
+import com.example.cqrs.domain.api.borrowing.LendBookCommand;
 import com.example.cqrs.domain.api.purchasing.BookCopyAddedEvent;
 import com.example.cqrs.domain.api.returning.BookCopyReturnedEvent;
 import com.example.cqrs.domain.api.returning.ReturnBookCommand;
@@ -18,7 +18,7 @@ import java.util.UUID;
 public class BookCopyHandlingTest {
 
     @Test
-    public void willLendBookCopy(@Autowired CommandHandlingTestFixture<BookCopy, BorrowBookCommand, Void> fixture) {
+    public void willLendBookCopy(@Autowired CommandHandlingTestFixture<BookCopy, LendBookCommand, Void> fixture) {
 
         var id = UUID.randomUUID();
         var isbn = "012-34567890";
@@ -29,7 +29,7 @@ public class BookCopyHandlingTest {
                         new BookCopyAddedEvent(id)
                 )
                 .when(
-                        new BorrowBookCommand(id, isbn)
+                        new LendBookCommand(id, isbn)
                 )
                 .expectSuccessfulExecution()
                 .expectSingleEvent(
@@ -38,7 +38,7 @@ public class BookCopyHandlingTest {
     }
 
     @Test
-    public void willNotLendAlreadyLentCopy(@Autowired CommandHandlingTestFixture<BookCopy, BorrowBookCommand, Void> fixture) {
+    public void willNotLendAlreadyLentCopy(@Autowired CommandHandlingTestFixture<BookCopy, LendBookCommand, Void> fixture) {
 
         var id = UUID.randomUUID();
         var isbn = "012-34567890";
@@ -50,7 +50,7 @@ public class BookCopyHandlingTest {
                         new BookCopyLentEvent(id, isbn, dueAt)
                 )
                 .when(
-                        new BorrowBookCommand(id, isbn)
+                        new LendBookCommand(id, isbn)
                 )
                 .expectUnsuccessfulExecution();
     }

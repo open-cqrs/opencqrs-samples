@@ -1,6 +1,6 @@
 package com.example.cqrs.domain;
 
-import com.example.cqrs.domain.api.borrowing.BorrowBookCommand;
+import com.example.cqrs.domain.api.borrowing.LendBookCommand;
 import com.example.cqrs.domain.api.returning.ReturnBookCommand;
 import com.example.cqrs.domain.api.purchasing.BookCopyAddedEvent;
 import com.example.cqrs.domain.api.borrowing.BookCopyLentEvent;
@@ -12,7 +12,6 @@ import de.dxfrontiers.cqrs.framework.command.StateRebuilding;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Random;
 
 @CommandHandlerConfiguration
 public class BookCopyHandling {
@@ -23,7 +22,7 @@ public class BookCopyHandling {
     }
 
     @CommandHandling
-    public void handle(BookCopy bookCopy, BorrowBookCommand command, CommandEventPublisher<BookCopy> publisher) {
+    public void handle(BookCopy bookCopy, LendBookCommand command, CommandEventPublisher<BookCopy> publisher) {
         if (bookCopy.isLent()) {
             throw new IllegalStateException("Book is already lent!");
         }

@@ -4,7 +4,7 @@ import de.dxfrontiers.cqrs.framework.command.Command;
 
 import java.util.UUID;
 
-public record BorrowBookCommand(
+public record LendBookCommand(
         UUID id,
         String isbn
 ) implements Command {
