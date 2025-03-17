@@ -35,7 +35,8 @@ public class BookHandlingTest {
                 .expectEvents(
                         new BookInformationAddedEvent("012-34567890", "JRR Tolkien", "LOTR", 435),
                         new BookCopyAddedEvent(id)
-                );
+                )
+                .expectNoMoreEvents();
     }
 
     @Test
@@ -73,7 +74,7 @@ public class BookHandlingTest {
                         new BookCopyAddedEvent(id3)
                 )
                 .when(new PurchaseBookCommand("012-34567890", "JRR Tolkien", "LOTR", 435))
-                .expectUnsuccessfulExecution();
+                .expectException(IllegalStateException.class);
     }
 
 }

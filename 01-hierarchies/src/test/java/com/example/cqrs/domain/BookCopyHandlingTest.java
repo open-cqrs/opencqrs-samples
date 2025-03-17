@@ -52,7 +52,7 @@ public class BookCopyHandlingTest {
                 .when(
                         new LendBookCommand(id, isbn)
                 )
-                .expectUnsuccessfulExecution();
+                .expectException(IllegalStateException.class);
     }
 
     @Test
@@ -89,6 +89,6 @@ public class BookCopyHandlingTest {
                 .when(
                         new ReturnBookCommand(id, isbn)
                 )
-                .expectUnsuccessfulExecution();
+                .expectException(IllegalStateException.class);
     }
 }
