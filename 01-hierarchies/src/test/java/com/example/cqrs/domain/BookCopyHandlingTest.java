@@ -5,8 +5,8 @@ import com.example.cqrs.domain.api.borrowing.LendBookCommand;
 import com.example.cqrs.domain.api.purchasing.BookCopyAddedEvent;
 import com.example.cqrs.domain.api.returning.BookCopyReturnedEvent;
 import com.example.cqrs.domain.api.returning.ReturnBookCommand;
-import de.dxfrontiers.cqrs.framework.command.CommandHandlingTest;
-import de.dxfrontiers.cqrs.framework.command.CommandHandlingTestFixture;
+import com.opencqrs.framework.command.CommandHandlingTest;
+import com.opencqrs.framework.command.CommandHandlingTestFixture;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 

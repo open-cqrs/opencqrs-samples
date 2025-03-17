@@ -1,6 +1,6 @@
 package com.example.cqrs.domain.api.purchasing;
 
-import de.dxfrontiers.cqrs.framework.command.Command;
+import com.opencqrs.framework.command.Command;
 
 public record PurchaseBookCommand(
         String isbn,

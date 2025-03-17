@@ -1,6 +1,6 @@
 package com.example.cqrs.domain.api.returning;
 
-import de.dxfrontiers.cqrs.framework.command.Command;
+import com.opencqrs.framework.command.Command;
 
 import java.util.UUID;
 

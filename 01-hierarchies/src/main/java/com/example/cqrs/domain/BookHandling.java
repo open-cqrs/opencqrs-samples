@@ -4,10 +4,10 @@ import com.example.cqrs.domain.api.purchasing.PurchaseBookCommand;
 import com.example.cqrs.domain.api.purchasing.BookCopyAddedEvent;
 import com.example.cqrs.domain.api.purchasing.BookInformationAddedEvent;
 import com.example.cqrs.utils.UUIDGenerator;
-import de.dxfrontiers.cqrs.framework.command.CommandEventPublisher;
-import de.dxfrontiers.cqrs.framework.command.CommandHandlerConfiguration;
-import de.dxfrontiers.cqrs.framework.command.CommandHandling;
-import de.dxfrontiers.cqrs.framework.command.StateRebuilding;
+import com.opencqrs.framework.command.CommandEventPublisher;
+import com.opencqrs.framework.command.CommandHandlerConfiguration;
+import com.opencqrs.framework.command.CommandHandling;
+import com.opencqrs.framework.command.StateRebuilding;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Collections;
