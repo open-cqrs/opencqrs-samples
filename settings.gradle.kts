@@ -8,5 +8,6 @@
 rootProject.name = "open-cqrs-samples"
 
 include(
-    "01-hierarchies"
+    "01-hierarchies",
+    "02-async-queries"
 )
