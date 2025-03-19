@@ -7,6 +7,10 @@ public record Book(
         Instant dueDate
 ) {
 
+    public Book(String isbn) {
+        this(isbn, null);
+    }
+
     public boolean isLent() {
         return dueDate != null;
     }
