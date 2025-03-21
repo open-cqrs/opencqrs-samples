@@ -50,7 +50,7 @@ public class BookHandling {
 
     @StateRebuilding
     public Book on(BookLentEvent event) {
-        return new Book(event.bookISBN(), event.dueAt());
+        return new Book(event.isbn(), event.dueAt());
     }
 
     @CommandHandling
@@ -66,6 +66,6 @@ public class BookHandling {
 
     @StateRebuilding
     public Book on(BookReturnedEvent event) {
-        return new Book(event.bookISBN());
+        return new Book(event.isbn());
     }
 }

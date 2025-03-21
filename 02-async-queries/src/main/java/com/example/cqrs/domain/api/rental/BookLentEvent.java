@@ -4,8 +4,8 @@ import java.time.Instant;
 import java.util.UUID;
 
 public record BookLentEvent(
-        UUID readerId,
-        String bookISBN,
-         Instant dueAt
+        UUID id,
+        String isbn,
+        Instant dueAt
 )  {
 }
