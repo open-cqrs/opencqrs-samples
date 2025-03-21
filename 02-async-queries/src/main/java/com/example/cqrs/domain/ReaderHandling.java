@@ -13,8 +13,7 @@ import java.util.UUID;
 public class ReaderHandling {
 
     @CommandHandling
-    public UUID handle(Reader reader, RegisterReaderCommand command, CommandEventPublisher<Reader> publisher) {
-
+    public void handle(Reader reader, RegisterReaderCommand command, CommandEventPublisher<Reader> publisher) {
         if (reader == null) {
             publisher.publish(
                     new ReaderRegisteredEvent(command.id(), command.firstName(), command.lastName())
@@ -22,8 +21,6 @@ public class ReaderHandling {
         } else {
             throw new IllegalStateException("Reader already registered!");
         }
-
-        return command.id();
     }
 
     @StateRebuilding
