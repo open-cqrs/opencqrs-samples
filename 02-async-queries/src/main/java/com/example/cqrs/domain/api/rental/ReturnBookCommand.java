@@ -5,12 +5,12 @@ import com.opencqrs.framework.command.Command;
 import java.util.UUID;
 
 public record ReturnBookCommand(
-        UUID readerId,
-        String bookISBN
+        UUID id,
+        String isbn
 ) implements Command {
 
     @Override
     public String getSubject() {
-        return "/books/" + bookISBN();
+        return "/books/" + isbn();
     }
 }

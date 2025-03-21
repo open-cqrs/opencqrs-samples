@@ -10,9 +10,7 @@ import com.opencqrs.framework.command.CommandEventPublisher;
 import com.opencqrs.framework.command.CommandHandlerConfiguration;
 import com.opencqrs.framework.command.CommandHandling;
 import com.opencqrs.framework.command.StateRebuilding;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
@@ -20,14 +18,18 @@ import java.time.temporal.ChronoUnit;
 public class BookHandling {
 
     @CommandHandling
-    public void handle(PurchaseBookCommand command, CommandEventPublisher<Void> publisher) {
-        publisher.publish(
-                new BookPurchasedEvent(
-                        command.isbn(),
-                        command.title(),
-                        command.author()
-                )
-        );
+    public void handle(Book book, PurchaseBookCommand command, CommandEventPublisher<Book> publisher) {
+        if (book == null) {
+            publisher.publish(
+                    new BookPurchasedEvent(
+                            command.isbn(),
+                            command.title(),
+                            command.author()
+                    )
+            );
+        } else {
+            throw new IllegalStateException("Book already in stock");
+        }
     }
 
     @StateRebuilding
@@ -41,7 +43,7 @@ public class BookHandling {
 
         var dueAt = Instant.now().truncatedTo(ChronoUnit.DAYS).plus(30, ChronoUnit.DAYS);
 
-        publisher.publish(new BookLentEvent(command.readerId(), command.bookISBN(), dueAt));
+        publisher.publish(new BookLentEvent(command.id(), command.isbn(), dueAt));
 
         return dueAt;
     }
@@ -59,7 +61,7 @@ public class BookHandling {
     ) {
         if (!book.isLent()) throw new IllegalStateException("book currently not lent");
 
-        publisher.publish(new BookReturnedEvent(command.readerId(), command.bookISBN()));
+        publisher.publish(new BookReturnedEvent(command.id(), command.isbn()));
     }
 
     @StateRebuilding
