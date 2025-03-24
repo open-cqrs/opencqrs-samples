@@ -39,7 +39,12 @@ public class BookHandling {
     }
 
     @CommandHandling
-    public void handle(Book book, LendBookCommand command, Map<String, String> metadata, CommandEventPublisher<Book> publisher) {
+    public void handle(
+            Book book,
+            LendBookCommand command,
+            Map<String, String> metadata,
+            CommandEventPublisher<Book> publisher
+    ) {
         if (book.isLent()) throw new IllegalStateException("book currently lent");
         if (metadata == null || !metadata.containsKey("correlation-id")) throw new IllegalStateException("no correlation id provided");
 
@@ -57,11 +62,13 @@ public class BookHandling {
     public void handle(
             Book book,
             ReturnBookCommand command,
+            Map<String, String> metadata,
             CommandEventPublisher<Book> publisher
     ) {
         if (!book.isLent()) throw new IllegalStateException("book currently not lent");
+        if (metadata == null || !metadata.containsKey("correlation-id")) throw new IllegalStateException("no correlation id provided");
 
-        publisher.publish(new BookReturnedEvent(command.id(), command.isbn()));
+        publisher.publish(new BookReturnedEvent(command.id(), command.isbn()), metadata);
     }
 
     @StateRebuilding

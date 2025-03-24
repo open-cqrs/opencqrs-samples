@@ -40,7 +40,11 @@ public class BookController {
     }
 
     @PostMapping("/return")
-    public void returnBook(@RequestBody ReturnBookCommand command) {
-        commandRouter.send(command);
+    public Object returnBook(@RequestBody ReturnBookCommand command) {
+        var correlationID = UUID.randomUUID();
+
+        commandRouter.send(command, Map.ofEntries(Map.entry("correlation-id", correlationID)));
+
+        return syncer.getLatestResultFor(correlationID.toString()).join();
     }
 }

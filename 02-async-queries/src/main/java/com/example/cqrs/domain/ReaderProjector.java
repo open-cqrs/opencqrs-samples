@@ -47,11 +47,13 @@ public class ReaderProjector {
 
     @EventHandling("reader")
     @Transactional
-    public void on(BookReturnedEvent event) {
+    public void on(BookReturnedEvent event, Map<String, String> metadata) {
         var entity = repository.findById(event.id()).orElseThrow(() -> new IllegalArgumentException("No such reader registered"));
 
         entity.getLentBookISBNs().remove(event.isbn());
 
-        repository.save(entity);
+        var savedEntity = repository.save(entity);
+
+        syncer.putLatestResultFor(metadata.get("correlation-id"), savedEntity.getLentBookISBNs().toArray());
     }
 }
