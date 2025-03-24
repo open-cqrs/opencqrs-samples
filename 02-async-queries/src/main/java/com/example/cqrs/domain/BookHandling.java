@@ -13,6 +13,7 @@ import com.opencqrs.framework.command.StateRebuilding;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Map;
 
 @CommandHandlerConfiguration
 public class BookHandling {
@@ -38,14 +39,13 @@ public class BookHandling {
     }
 
     @CommandHandling
-    public Instant handle(Book book, LendBookCommand command, CommandEventPublisher<Book> publisher) {
+    public void handle(Book book, LendBookCommand command, Map<String, String> metadata, CommandEventPublisher<Book> publisher) {
         if (book.isLent()) throw new IllegalStateException("book currently lent");
+        if (metadata == null || !metadata.containsKey("correlation-id")) throw new IllegalStateException("no correlation id provided");
 
         var dueAt = Instant.now().truncatedTo(ChronoUnit.DAYS).plus(30, ChronoUnit.DAYS);
 
-        publisher.publish(new BookLentEvent(command.id(), command.isbn(), dueAt));
-
-        return dueAt;
+        publisher.publish(new BookLentEvent(command.id(), command.isbn(), dueAt), metadata);
     }
 
     @StateRebuilding
