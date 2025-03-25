@@ -2,10 +2,7 @@ package com.example.cqrs.domain;
 
 import com.example.cqrs.domain.api.purchase.BookPurchasedEvent;
 import com.example.cqrs.domain.api.purchase.PurchaseBookCommand;
-import com.example.cqrs.domain.api.rental.BookLentEvent;
-import com.example.cqrs.domain.api.rental.BookReturnedEvent;
-import com.example.cqrs.domain.api.rental.LendBookCommand;
-import com.example.cqrs.domain.api.rental.ReturnBookCommand;
+import com.example.cqrs.domain.api.rental.*;
 import com.opencqrs.framework.command.CommandEventPublisher;
 import com.opencqrs.framework.command.CommandHandlerConfiguration;
 import com.opencqrs.framework.command.CommandHandling;
@@ -50,11 +47,12 @@ public class BookHandling {
 
         var dueAt = Instant.now().truncatedTo(ChronoUnit.DAYS).plus(30, ChronoUnit.DAYS);
 
-        publisher.publish(new BookLentEvent(command.id(), command.isbn(), dueAt), metadata);
+        publisher.publish(new BookReservedEvent(command.isbn(), dueAt));
+        publisher.publish(new BookReceivedEvent(command.id(), command.isbn()), metadata);
     }
 
     @StateRebuilding
-    public Book on(BookLentEvent event) {
+    public Book on(BookReservedEvent event) {
         return new Book(event.isbn(), event.dueAt());
     }
 
