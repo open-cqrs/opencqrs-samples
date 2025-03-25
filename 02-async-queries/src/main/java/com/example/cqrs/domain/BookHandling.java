@@ -67,10 +67,11 @@ public class BookHandling {
         if (metadata == null || !metadata.containsKey("correlation-id")) throw new IllegalStateException("no correlation id provided");
 
         publisher.publish(new BookReturnedEvent(command.id(), command.isbn()), metadata);
+        publisher.publish(new BookUnreservedEvent(command.isbn()));
     }
 
     @StateRebuilding
-    public Book on(BookReturnedEvent event) {
+    public Book on(BookUnreservedEvent event) {
         return new Book(event.isbn());
     }
 }
