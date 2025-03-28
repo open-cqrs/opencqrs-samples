@@ -6,3 +6,7 @@
 
 # Ignore Gradle build output directory
 build
+
+# Misc
+
+.DS_Store
