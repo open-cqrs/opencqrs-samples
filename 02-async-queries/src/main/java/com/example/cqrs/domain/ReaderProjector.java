@@ -9,6 +9,9 @@ import com.example.cqrs.domain.persistence.ReaderRepository;
 import com.example.cqrs.service.SynchronizerService;
 import com.opencqrs.framework.eventhandler.EventHandling;
 import jakarta.transaction.Transactional;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -18,10 +21,12 @@ public class ReaderProjector {
 
     private final ReaderRepository repository;
     private final SynchronizerService syncer;
+    private final MessageChannel channel;
 
-    public ReaderProjector(ReaderRepository repository, SynchronizerService syncer) {
+    public ReaderProjector(ReaderRepository repository, SynchronizerService syncer, MessageChannel channel) {
         this.repository = repository;
         this.syncer = syncer;
+        this.channel = channel;
     }
 
     @EventHandling("reader")
@@ -29,7 +34,9 @@ public class ReaderProjector {
     public void on(ReaderRegisteredEvent event) {
         var entity = new ReaderEntity();
         entity.setId(event.id());
-        repository.save(entity);
+        var saved = repository.save(entity);
+        Message<String> message = MessageBuilder.withPayload(saved.getId().toString()).build();
+        channel.send(message);
     }
 
     @EventHandling("reader")
