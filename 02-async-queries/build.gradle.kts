@@ -18,6 +18,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.integration:spring-integration-jdbc")
     implementation("org.postgresql:postgresql:42.7.3")
 //    runtimeOnly("com.h2database:h2")
     implementation("com.opencqrs:framework-spring-boot-starter:1.0.0")
