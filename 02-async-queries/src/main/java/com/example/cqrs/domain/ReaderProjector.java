@@ -31,11 +31,11 @@ public class ReaderProjector {
 
     @EventHandling("reader")
     @Transactional
-    public void on(ReaderRegisteredEvent event) {
+    public void on(ReaderRegisteredEvent event, Map<String, String> metadata) {
         var entity = new ReaderEntity();
         entity.setId(event.id());
-        var saved = repository.save(entity);
-        Message<String> message = MessageBuilder.withPayload(saved.getId().toString()).build();
+        repository.save(entity);
+        Message<String> message = MessageBuilder.withPayload(metadata.getOrDefault("correlation-id", "")).build();
         channel.send(message);
     }
 

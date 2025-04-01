@@ -35,7 +35,7 @@ public class ReaderProjectorTest {
 
     @Test
     public void registerReader() {
-        projector.on(new ReaderRegisteredEvent(id, "Max", "Mustermann"));
+        projector.on(new ReaderRegisteredEvent(id, "Max", "Mustermann"), metadata);
 
         var entity = repository.findById(id);
 

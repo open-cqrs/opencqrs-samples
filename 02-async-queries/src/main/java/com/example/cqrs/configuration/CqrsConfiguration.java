@@ -56,13 +56,4 @@ public class CqrsConfiguration {
             JdbcChannelMessageStore messageStore) {
         return new PostgresSubscribableChannel(messageStore, "some group", subscriber);
     }
-
-    @Bean
-    public IntegrationFlow channelFlow(MessageChannel channel) {
-        return IntegrationFlow.from(channel)
-                .handle(message -> {
-                    System.out.println(message);
-                })
-                .get();
-    }
 }
