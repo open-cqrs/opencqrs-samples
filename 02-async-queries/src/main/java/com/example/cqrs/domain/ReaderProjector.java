@@ -46,9 +46,10 @@ public class ReaderProjector {
 
         entity.getLentBookISBNs().add(event.isbn());
 
-        var savedEntity = repository.save(entity);
+        repository.save(entity);
 
-        syncer.putLatestResultFor(metadata.get("correlation-id"), savedEntity.getLentBookISBNs().toArray());
+        Message<String> message = MessageBuilder.withPayload(metadata.getOrDefault("correlation-id", "")).build();
+        channel.send(message);
     }
 
     @EventHandling("reader")
@@ -58,8 +59,9 @@ public class ReaderProjector {
 
         entity.getLentBookISBNs().remove(event.isbn());
 
-        var savedEntity = repository.save(entity);
+        repository.save(entity);
 
-        syncer.putLatestResultFor(metadata.get("correlation-id"), savedEntity.getLentBookISBNs().toArray());
+        Message<String> message = MessageBuilder.withPayload(metadata.getOrDefault("correlation-id", "")).build();
+        channel.send(message);
     }
 }

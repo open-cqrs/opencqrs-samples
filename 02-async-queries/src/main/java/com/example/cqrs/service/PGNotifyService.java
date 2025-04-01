@@ -1,6 +1,8 @@
 package com.example.cqrs.service;
 
+
 import org.springframework.integration.jdbc.channel.PostgresSubscribableChannel;
+import org.springframework.messaging.MessageHandler;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.CompletableFuture;
@@ -17,12 +19,20 @@ public class PGNotifyService {
     public CompletableFuture<Object> queryLatestResultFor(String correlationId, Supplier<Object> query) {
         var futureResult = new CompletableFuture<>();
 
-        channel.subscribe(m -> {
+        MessageHandler messageHandler = m -> {
             if (m.getPayload().equals(correlationId)) {
                 futureResult.complete(query.get());
             }
-        });
+        };
+        channel.subscribe(messageHandler);
 
-        return futureResult;
+        // TODO: Timeout as well?
+
+        return futureResult.thenApply(
+                result -> {
+                    channel.unsubscribe(messageHandler);
+                    return result;
+                }
+        );
     }
 }
