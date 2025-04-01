@@ -5,11 +5,17 @@ import com.example.cqrs.domain.api.rental.BookReceivedEvent;
 import com.example.cqrs.domain.api.rental.BookReturnedEvent;
 import com.example.cqrs.domain.persistence.ReaderEntity;
 import com.example.cqrs.domain.persistence.ReaderRepository;
+import com.example.cqrs.service.PGNotifyService;
 import com.example.cqrs.service.SynchronizerService;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.MessageChannel;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.Arrays;
@@ -18,13 +24,17 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForClassTypes.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 @DataJpaTest
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Import(ReaderProjector.class)
 public class ReaderProjectorTest {
 
     @Autowired private ReaderRepository repository;
-    @MockitoBean private SynchronizerService syncer;
+    @MockitoBean private PGNotifyService syncer;
+    @MockitoBean private MessageChannel channel;
 
     @Autowired private ReaderProjector projector;
 
@@ -32,6 +42,12 @@ public class ReaderProjectorTest {
     private String isbn1 = "978-0008471286";
     private String isbn2 = "978-0747532743";
     private Map<String, String> metadata = Map.of("correlation-id", "cid");
+
+
+    @BeforeEach
+    public void setup() {
+        when(channel.send(any(Message.class))).thenReturn(true);
+    }
 
     @Test
     public void registerReader() {

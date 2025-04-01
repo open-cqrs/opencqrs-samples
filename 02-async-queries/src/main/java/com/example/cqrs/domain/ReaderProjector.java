@@ -6,7 +6,6 @@ import com.example.cqrs.domain.api.rental.BookReceivedEvent;
 import com.example.cqrs.domain.api.rental.BookReturnedEvent;
 import com.example.cqrs.domain.persistence.ReaderEntity;
 import com.example.cqrs.domain.persistence.ReaderRepository;
-import com.example.cqrs.service.SynchronizerService;
 import com.opencqrs.framework.eventhandler.EventHandling;
 import jakarta.transaction.Transactional;
 import org.springframework.messaging.Message;
@@ -20,12 +19,10 @@ import java.util.Map;
 public class ReaderProjector {
 
     private final ReaderRepository repository;
-    private final SynchronizerService syncer;
     private final MessageChannel channel;
 
-    public ReaderProjector(ReaderRepository repository, SynchronizerService syncer, MessageChannel channel) {
+    public ReaderProjector(ReaderRepository repository, MessageChannel channel) {
         this.repository = repository;
-        this.syncer = syncer;
         this.channel = channel;
     }
 
