@@ -8,6 +8,11 @@ plugins {
 group = "com.opencqrs"
 version = "0.0.1-SNAPSHOT"
 
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
