@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  event-store:
+    image: docker.io/thenativeweb/eventsourcingdb:0.106.0
+    user: "root:root"
+    volumes:
+      - event-data:/events
+    command: "run --api-token secret --data-directory /events --http-enabled=true --https-enabled=false --with-ui"
+    ports:
+      - "3000:3000"
+
+  postgres:
+    image: postgres:17.1
+    container_name: postgres_db
+    environment:
+      POSTGRES_DB: mydatabase
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - spring-postgres-net
+
+#  spring-app:
+#    build:
+#      context: .
+#      dockerfile: Dockerfile
+#    container_name: spring_app
+#    depends_on:
+#      postgres:
+#        condition: service_healthy
+#    environment:
+#      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/springapp
+#      SPRING_DATASOURCE_USERNAME: postgres
+#      SPRING_DATASOURCE_PASSWORD: postgres
+#      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+#    ports:
+#      - "8080:8080"
+#    networks:
+#      - spring-postgres-net
+
+networks:
+  spring-postgres-net:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  event-data:
