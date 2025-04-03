@@ -12,7 +12,6 @@ services:
 
   postgres:
     image: postgres:17.1
-    container_name: postgres_db
     environment:
       POSTGRES_DB: mydatabase
       POSTGRES_USER: myuser
@@ -21,30 +20,26 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    networks:
-      - spring-postgres-net
 
-#  spring-app:
-#    build:
-#      context: .
-#      dockerfile: Dockerfile
-#    container_name: spring_app
-#    depends_on:
-#      postgres:
-#        condition: service_healthy
-#    environment:
-#      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/springapp
-#      SPRING_DATASOURCE_USERNAME: postgres
-#      SPRING_DATASOURCE_PASSWORD: postgres
-#      SPRING_JPA_HIBERNATE_DDL_AUTO: update
-#    ports:
-#      - "8080:8080"
-#    networks:
-#      - spring-postgres-net
-
-networks:
-  spring-postgres-net:
-    driver: bridge
+  spring-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - postgres
+      - event-store
+    environment:
+      ESDB_SERVER_URI: http://event-store:3000
+      ESDB_SERVER_API_TOKEN: secret
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/mydatabase
+      SPRING_DATASOURCE_USERNAME: myuser
+      SPRING_DATASOURCE_PASSWORD: mypassword
+      SPRING_SQL_INIT_MODE: always
+      SPRING_SQL_INIT_SEPARATOR: "^;"
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_SHOW_SQL: false
+    ports:
+      - "8080:8080"
 
 volumes:
   postgres_data:
