@@ -16,10 +16,12 @@ services:
       POSTGRES_DB: mydatabase
       POSTGRES_USER: myuser
       POSTGRES_PASSWORD: mypassword
+    command: postgres -c log_min_messages=fatal -c log_min_error_statement=fatal
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql
 
   spring-app1:
     build:
@@ -34,7 +36,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/mydatabase
       SPRING_DATASOURCE_USERNAME: myuser
       SPRING_DATASOURCE_PASSWORD: mypassword
-      SPRING_SQL_INIT_MODE: always
+      SPRING_SQL_INIT_MODE: never
       SPRING_SQL_INIT_SEPARATOR: "^;"
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SPRING_JPA_SHOW_SQL: false
@@ -46,8 +48,6 @@ services:
       context: .
       dockerfile: Dockerfile
     depends_on:
-      - postgres
-      - event-store
       - spring-app1
     environment:
       ESDB_SERVER_URI: http://event-store:3000
