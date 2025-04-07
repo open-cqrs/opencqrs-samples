@@ -21,7 +21,7 @@ The actions one can perform are:
 
 First, we should have a basic idea of the message and data flows in a standard Open CQRS-app:
 
-[INSERT SINGLE JVM DIAGRAM HERE]
+![Single-JVM-Setup](https://github.com/user-attachments/assets/ed4e3380-534b-44e0-a03a-91fa51675d8a)
 
 First, a client makes a call to one of the app's endpoints **(1)**, which in turn causes it to issue a command to the command router **(2)**.
 The command router then passes said command to the appropriate command handler **(3)**, which (among other things) writes one (or more) events to the event store **(4)**.
@@ -39,7 +39,7 @@ We ensure that a given read-model update corresponds to a given command by routi
 
 However, this breaks down once we consider a more realistic, industry-grade setup where multiple instances of the app are running in parallel (usually containerized) and reverse-proxied by a load balancer (or something similar):
 
-[INSERT MULTI JVM DIAGRAM HERE]
+![Multi-JVM-Setup v2](https://github.com/user-attachments/assets/36d9e5e5-8f74-4e70-bc27-ddcd37124216)
 
 Here, not only will the event handling done by a different thread than the command handling, but it also might be done on a completely different JVM!
 
