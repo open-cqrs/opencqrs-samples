@@ -33,7 +33,7 @@ public class ReaderController {
     @PostMapping("/register")
     public String registerReader(ReaderDetail detail) {
 
-        var id = UUID.randomUUID(); // TODO: Service
+        var id = UUID.randomUUID();
         var correlationId = UUID.randomUUID().toString();
 
         commandRouter.send(
