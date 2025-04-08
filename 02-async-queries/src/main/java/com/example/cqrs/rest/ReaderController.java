@@ -4,17 +4,11 @@ import com.example.cqrs.domain.api.registration.RegisterReaderCommand;
 import com.example.cqrs.domain.persistence.ReaderRepository;
 import com.example.cqrs.service.PGNotifyService;
 import com.opencqrs.framework.command.CommandRouter;
-import org.springframework.integration.jdbc.channel.PostgresSubscribableChannel;
-import org.springframework.messaging.MessageChannel;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/readers")
@@ -30,8 +24,8 @@ public class ReaderController {
         this.notifier = notifier;
     }
 
-    @PostMapping("/register")
-    public String registerReader(ReaderDetail detail) {
+    @PostMapping
+    public String registerReader(@RequestBody ReaderDetail detail) {
 
         var id = UUID.randomUUID();
         var correlationId = UUID.randomUUID().toString();
@@ -51,8 +45,8 @@ public class ReaderController {
         ).join().toString();
     }
 
-    @PostMapping("/overview")
-    public Set<String> getBooksOfReader(@RequestBody String id) {
+    @GetMapping("/{id}")
+    public Set<String> getBooksOfReader(@PathVariable String id) {
         var entity = repository.findById(UUID.fromString(id)).orElseThrow(() -> new IllegalStateException("No such reader registered"));
 
         return entity.getLentBookISBNs();
