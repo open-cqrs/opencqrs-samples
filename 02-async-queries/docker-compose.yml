@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   event-store:
-    image: docker.io/thenativeweb/eventsourcingdb:0.106.0
+    image: docker.io/thenativeweb/eventsourcingdb:latest
     user: "root:root"
     volumes:
       - event-data:/events
@@ -37,7 +37,6 @@ services:
       SPRING_DATASOURCE_USERNAME: myuser
       SPRING_DATASOURCE_PASSWORD: mypassword
       SPRING_SQL_INIT_MODE: never
-      SPRING_SQL_INIT_SEPARATOR: "^;"
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SPRING_JPA_SHOW_SQL: false
     ports:
