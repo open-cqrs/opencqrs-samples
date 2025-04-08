@@ -98,7 +98,7 @@ Next, we configure a subscribable channel to listen for the database-notificatio
 
 Once all this is done, we need a [sql file](schema.sql) which initializes the postgres to work with the aforementioned mechanisms.
 
-In our controllers, we can now listen for database notifications given a correlation id for a command ([example](src/main/java/com/example/cqrs/rest/ReaderController.java#L48)).
+In our controllers, we can now listen for database notifications given a correlation id for a command ([example](src/main/java/com/example/cqrs/rest/ReaderController.java#L42)).
 
 # Running it
 
