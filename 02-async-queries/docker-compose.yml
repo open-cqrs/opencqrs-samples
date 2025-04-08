@@ -16,7 +16,7 @@ services:
       POSTGRES_DB: mydatabase
       POSTGRES_USER: myuser
       POSTGRES_PASSWORD: mypassword
-    command: postgres -c log_min_messages=fatal -c log_min_error_statement=fatal
+    command: postgres -c log_statement=mod -c log_min_messages=fatal
     ports:
       - "5432:5432"
     volumes:
