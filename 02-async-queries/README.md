@@ -115,3 +115,8 @@ This will
 3. Create an nginx reverse-proxy for the instances, available under http://localhost:8080
 
 You can now issue commands via HTTP and see the updated read-model as a response!
+
+For convenience, this repository provides a pre-made [collection](postman/OpenCQRS%20-%20Sample%2002.postman_collection.json) and [environment](postman/OpenCQRS%20-%20Sample%2002.postman_environment.json)
+for use in [Postman](https://www.postman.com/downloads/).
+
+The requests inside the collection each correspond to one of the commands mentioned in the [introduction](#introduction).
