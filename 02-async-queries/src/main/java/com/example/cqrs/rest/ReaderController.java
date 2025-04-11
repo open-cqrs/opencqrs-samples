@@ -2,7 +2,7 @@ package com.example.cqrs.rest;
 
 import com.example.cqrs.domain.api.registration.RegisterReaderCommand;
 import com.example.cqrs.domain.persistence.ReaderRepository;
-import com.example.cqrs.service.PGNotifyService;
+import com.example.cqrs.async.PGNotifyService;
 import com.opencqrs.framework.command.CommandRouter;
 import org.springframework.web.bind.annotation.*;
 

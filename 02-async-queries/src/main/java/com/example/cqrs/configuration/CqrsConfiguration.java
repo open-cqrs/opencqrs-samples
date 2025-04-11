@@ -56,10 +56,10 @@ public class CqrsConfiguration {
                 DriverManager.getConnection(url, username, password).unwrap(PgConnection.class));
     }
 
-    @Bean("readers")
-    public PostgresSubscribableChannel readerIdChannel(
+    @Bean
+    public PostgresSubscribableChannel channel(
             PostgresChannelMessageTableSubscriber subscriber,
             JdbcChannelMessageStore messageStore) {
-        return new PostgresSubscribableChannel(messageStore, "readers", subscriber);
+        return new PostgresSubscribableChannel(messageStore, "postgres", subscriber);
     }
 }

@@ -1,4 +1,4 @@
-package com.example.cqrs.service;
+package com.example.cqrs.async;
 
 import org.springframework.stereotype.Service;
 

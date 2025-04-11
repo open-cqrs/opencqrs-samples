@@ -4,7 +4,7 @@ import com.example.cqrs.domain.api.purchase.PurchaseBookCommand;
 import com.example.cqrs.domain.api.rental.LendBookCommand;
 import com.example.cqrs.domain.api.rental.ReturnBookCommand;
 import com.example.cqrs.domain.persistence.ReaderRepository;
-import com.example.cqrs.service.PGNotifyService;
+import com.example.cqrs.async.PGNotifyService;
 import com.opencqrs.framework.command.CommandRouter;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

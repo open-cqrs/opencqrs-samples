@@ -1,5 +1,6 @@
 package com.example.cqrs.service;
 
+import com.example.cqrs.async.SynchronizerService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

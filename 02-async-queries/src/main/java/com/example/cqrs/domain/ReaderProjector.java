@@ -1,16 +1,17 @@
 package com.example.cqrs.domain;
 
 
+import com.example.cqrs.async.PGMessagePayload;
 import com.example.cqrs.domain.api.registration.ReaderRegisteredEvent;
 import com.example.cqrs.domain.api.rental.BookReceivedEvent;
 import com.example.cqrs.domain.api.rental.BookReturnedEvent;
 import com.example.cqrs.domain.persistence.ReaderEntity;
 import com.example.cqrs.domain.persistence.ReaderRepository;
-import com.example.cqrs.service.PGNotifyService;
+import com.example.cqrs.async.PGNotifyService;
 import com.opencqrs.framework.eventhandler.EventHandling;
 import jakarta.transaction.Transactional;
+import org.springframework.integration.jdbc.channel.PostgresSubscribableChannel;
 import org.springframework.messaging.Message;
-import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Service;
 
@@ -20,11 +21,11 @@ import java.util.Map;
 public class ReaderProjector {
 
     private final ReaderRepository repository;
-    private final PGNotifyService notifier;
+    private final PostgresSubscribableChannel channel;
 
-    public ReaderProjector(ReaderRepository repository, PGNotifyService notifier) {
+    public ReaderProjector(ReaderRepository repository, PostgresSubscribableChannel channel) {
         this.repository = repository;
-        this.notifier = notifier;
+        this.channel = channel;
     }
 
     @EventHandling("reader")
@@ -33,8 +34,13 @@ public class ReaderProjector {
         var entity = new ReaderEntity();
         entity.setId(event.id());
         repository.save(entity);
-        Message<String> message = MessageBuilder.withPayload(metadata.getOrDefault("correlation-id", "")).build();
-        notifier.sendMessageFor("readers", message);
+        Message<PGMessagePayload> message = MessageBuilder.withPayload(
+                new PGMessagePayload(
+                        "readers",
+                        metadata.getOrDefault("correlation-id", "")
+                )
+        ).build();
+        channel.send(message);
     }
 
     @EventHandling("reader")
@@ -46,8 +52,13 @@ public class ReaderProjector {
 
         repository.save(entity);
 
-        Message<String> message = MessageBuilder.withPayload(metadata.getOrDefault("correlation-id", "")).build();
-        notifier.sendMessageFor("readers", message);
+        Message<PGMessagePayload> message = MessageBuilder.withPayload(
+                new PGMessagePayload(
+                        "readers",
+                        metadata.getOrDefault("correlation-id", "")
+                )
+        ).build();
+        channel.send(message);
     }
 
     @EventHandling("reader")
@@ -59,7 +70,12 @@ public class ReaderProjector {
 
         repository.save(entity);
 
-        Message<String> message = MessageBuilder.withPayload(metadata.getOrDefault("correlation-id", "")).build();
-        notifier.sendMessageFor("readers", message);
+        Message<PGMessagePayload> message = MessageBuilder.withPayload(
+                new PGMessagePayload(
+                        "readers",
+                        metadata.getOrDefault("correlation-id", "")
+                )
+        ).build();
+        channel.send(message);
     }
 }
