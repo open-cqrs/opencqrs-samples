@@ -5,11 +5,7 @@ import com.example.cqrs.domain.api.rental.LendBookCommand;
 import com.example.cqrs.domain.api.rental.ReturnBookCommand;
 import com.example.cqrs.domain.persistence.ReaderRepository;
 import com.example.cqrs.service.PGNotifyService;
-import com.example.cqrs.service.SynchronizerService;
 import com.opencqrs.framework.command.CommandRouter;
-import org.springframework.integration.jdbc.channel.PostgresSubscribableChannel;
-import org.springframework.messaging.Message;
-import org.springframework.messaging.MessageHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/books")
@@ -45,9 +40,9 @@ public class BookController {
         commandRouter.send(command, Map.ofEntries(Map.entry("correlation-id", correlationID)));
 
         return notifier.queryLatestResultFor(
+                "readers",
                 correlationID,
-                () -> repository.findById(command.id()).get().getLentBookISBNs().toArray()
-        ).join();
+                () -> repository.findById(command.id()).get().getLentBookISBNs().toArray()).join();
     }
 
     @PostMapping("/return")
@@ -57,8 +52,8 @@ public class BookController {
         commandRouter.send(command, Map.ofEntries(Map.entry("correlation-id", correlationID)));
 
         return notifier.queryLatestResultFor(
+                "readers",
                 correlationID,
-                () -> repository.findById(command.id()).get().getLentBookISBNs().toArray()
-        ).join();
+                () -> repository.findById(command.id()).get().getLentBookISBNs().toArray()).join();
     }
 }

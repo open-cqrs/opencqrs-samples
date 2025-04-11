@@ -40,6 +40,7 @@ public class ReaderController {
         );
 
         return notifier.queryLatestResultFor(
+                "readers",
                 correlationId,
                 () -> repository.findById(id).get().getId()
         ).join().toString();

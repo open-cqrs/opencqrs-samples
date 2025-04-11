@@ -6,6 +6,7 @@ import com.example.cqrs.domain.api.rental.BookReceivedEvent;
 import com.example.cqrs.domain.api.rental.BookReturnedEvent;
 import com.example.cqrs.domain.persistence.ReaderEntity;
 import com.example.cqrs.domain.persistence.ReaderRepository;
+import com.example.cqrs.service.PGNotifyService;
 import com.opencqrs.framework.eventhandler.EventHandling;
 import jakarta.transaction.Transactional;
 import org.springframework.messaging.Message;
@@ -19,11 +20,11 @@ import java.util.Map;
 public class ReaderProjector {
 
     private final ReaderRepository repository;
-    private final MessageChannel channel;
+    private final PGNotifyService notifier;
 
-    public ReaderProjector(ReaderRepository repository, MessageChannel channel) {
+    public ReaderProjector(ReaderRepository repository, PGNotifyService notifier) {
         this.repository = repository;
-        this.channel = channel;
+        this.notifier = notifier;
     }
 
     @EventHandling("reader")
@@ -33,7 +34,7 @@ public class ReaderProjector {
         entity.setId(event.id());
         repository.save(entity);
         Message<String> message = MessageBuilder.withPayload(metadata.getOrDefault("correlation-id", "")).build();
-        channel.send(message);
+        notifier.sendMessageFor("readers", message);
     }
 
     @EventHandling("reader")
@@ -46,7 +47,7 @@ public class ReaderProjector {
         repository.save(entity);
 
         Message<String> message = MessageBuilder.withPayload(metadata.getOrDefault("correlation-id", "")).build();
-        channel.send(message);
+        notifier.sendMessageFor("readers", message);
     }
 
     @EventHandling("reader")
@@ -59,6 +60,6 @@ public class ReaderProjector {
         repository.save(entity);
 
         Message<String> message = MessageBuilder.withPayload(metadata.getOrDefault("correlation-id", "")).build();
-        channel.send(message);
+        notifier.sendMessageFor("readers", message);
     }
 }

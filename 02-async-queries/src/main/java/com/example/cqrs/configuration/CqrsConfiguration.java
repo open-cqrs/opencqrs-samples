@@ -2,10 +2,10 @@ package com.example.cqrs.configuration;
 
 import com.opencqrs.framework.eventhandler.progress.JdbcProgressTracker;
 import org.postgresql.jdbc.PgConnection;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.integration.dsl.IntegrationFlow;
 import org.springframework.integration.jdbc.channel.PostgresChannelMessageTableSubscriber;
 import org.springframework.integration.jdbc.channel.PostgresSubscribableChannel;
 import org.springframework.integration.jdbc.lock.DefaultLockRepository;
@@ -13,7 +13,6 @@ import org.springframework.integration.jdbc.lock.JdbcLockRegistry;
 import org.springframework.integration.jdbc.lock.LockRepository;
 import org.springframework.integration.jdbc.store.JdbcChannelMessageStore;
 import org.springframework.integration.jdbc.store.channel.PostgresChannelMessageStoreQueryProvider;
-import org.springframework.messaging.MessageChannel;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
@@ -57,10 +56,10 @@ public class CqrsConfiguration {
                 DriverManager.getConnection(url, username, password).unwrap(PgConnection.class));
     }
 
-    @Bean
-    public PostgresSubscribableChannel channel(
+    @Bean("readers")
+    public PostgresSubscribableChannel readerIdChannel(
             PostgresChannelMessageTableSubscriber subscriber,
             JdbcChannelMessageStore messageStore) {
-        return new PostgresSubscribableChannel(messageStore, "some group", subscriber);
+        return new PostgresSubscribableChannel(messageStore, "readers", subscriber);
     }
 }

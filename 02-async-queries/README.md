@@ -69,7 +69,7 @@ First, we set up a [configuration](src/main/java/com/example/cqrs/configuration/
     }
 ```
 
-Next, we configure a subscribable channel to listen for the database-notifications as per the [documentation](https://docs.spring.io/spring-integration/reference/jdbc/message-store.html#postgresql-push):
+Next, we configure a subscribable channels to listen for the database-notifications as per the [documentation](https://docs.spring.io/spring-integration/reference/jdbc/message-store.html#postgresql-push):
 
 ```java
     @Bean
@@ -89,7 +89,7 @@ Next, we configure a subscribable channel to listen for the database-notificatio
     }
 
     @Bean
-    public PostgresSubscribableChannel channel(
+    public PostgresSubscribableChannel channels(
             PostgresChannelMessageTableSubscriber subscriber,
             JdbcChannelMessageStore messageStore) {
         return new PostgresSubscribableChannel(messageStore, "some group", subscriber);

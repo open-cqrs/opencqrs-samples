@@ -1,6 +1,5 @@
 package com.example.cqrs.service;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -41,7 +40,7 @@ class PGNotifyServiceTest {
         Supplier<Object> query = () -> expectedResult;
 
         // When
-        CompletableFuture<Object> future = service.queryLatestResultFor(correlationId, query);
+        CompletableFuture<Object> future = service.queryLatestResultFor(, correlationId, query);
 
         // Then
         verify(channel).subscribe(messageHandlerCaptor.capture());
@@ -65,7 +64,7 @@ class PGNotifyServiceTest {
         Supplier<Object> query = () -> "query-result";
 
         // When
-        CompletableFuture<Object> future = service.queryLatestResultFor(correlationId, query);
+        CompletableFuture<Object> future = service.queryLatestResultFor(, correlationId, query);
 
         // Then
         verify(channel).subscribe(messageHandlerCaptor.capture());
@@ -88,7 +87,7 @@ class PGNotifyServiceTest {
         Supplier<Object> query = mock(Supplier.class);
 
         // When
-        CompletableFuture<Object> future = service.queryLatestResultFor(correlationId, query);
+        CompletableFuture<Object> future = service.queryLatestResultFor(, correlationId, query);
 
         // Then
         verify(channel).subscribe(messageHandlerCaptor.capture());
@@ -113,7 +112,7 @@ class PGNotifyServiceTest {
         when(query.get()).thenReturn("result");
 
         // When
-        CompletableFuture<Object> future = service.queryLatestResultFor(correlationId, query);
+        CompletableFuture<Object> future = service.queryLatestResultFor(, correlationId, query);
 
         // Then
         verify(channel).subscribe(messageHandlerCaptor.capture());
@@ -134,7 +133,7 @@ class PGNotifyServiceTest {
         Supplier<Object> query = () -> "result";
 
         // When
-        CompletableFuture<Object> future = service.queryLatestResultFor(correlationId, query);
+        CompletableFuture<Object> future = service.queryLatestResultFor(, correlationId, query);
 
         // Then
         verify(channel).subscribe(messageHandlerCaptor.capture());
@@ -147,7 +146,7 @@ class PGNotifyServiceTest {
         // Wait for future to complete
         future.get();
 
-        // Verify channel.unsubscribe was called with correct handler
+        // Verify readerLentBooksChannel.unsubscribe was called with correct handler
         verify(channel).unsubscribe(handler);
     }
 }
