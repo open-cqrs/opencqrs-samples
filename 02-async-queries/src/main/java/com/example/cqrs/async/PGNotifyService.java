@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 @Service
@@ -32,13 +33,13 @@ public class PGNotifyService {
         };
         channel.subscribe(messageHandler);
 
-        // TODO: Timeout as well?
-
-        return futureResult.thenApply(
-                result -> {
-                    channel.unsubscribe(messageHandler);
-                    return result;
-                }
-        );
+        return futureResult
+                .thenApply(
+                    result -> {
+                        channel.unsubscribe(messageHandler);
+                        return result;
+                    }
+                )
+                .orTimeout(5, TimeUnit.SECONDS);
     }
 }
