@@ -1,6 +1,6 @@
 package com.example.cqrs.service;
 
-import com.example.cqrs.async.PGNotifyService;
+import com.example.cqrs.async.CommandBridge;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class PGNotifyServiceTest {
+class CommandBridgeTest {
 
     @MockitoBean
     private PostgresSubscribableChannel channel;
@@ -31,7 +31,7 @@ class PGNotifyServiceTest {
     @Captor
     private ArgumentCaptor<MessageHandler> messageHandlerCaptor;
 
-    @Autowired private PGNotifyService service;
+    @Autowired private CommandBridge service;
 
     @Test
     void shouldCompleteWhenCorrectCorrelationIdReceived() throws ExecutionException, InterruptedException {
@@ -41,7 +41,7 @@ class PGNotifyServiceTest {
         Supplier<Object> query = () -> expectedResult;
 
         // When
-        CompletableFuture<Object> future = service.queryLatestResultFor(, correlationId, query);
+        CompletableFuture<Object> future = service.sendAndAwait(, correlationId, query);
 
         // Then
         verify(channel).subscribe(messageHandlerCaptor.capture());
@@ -65,7 +65,7 @@ class PGNotifyServiceTest {
         Supplier<Object> query = () -> "query-result";
 
         // When
-        CompletableFuture<Object> future = service.queryLatestResultFor(, correlationId, query);
+        CompletableFuture<Object> future = service.sendAndAwait(, correlationId, query);
 
         // Then
         verify(channel).subscribe(messageHandlerCaptor.capture());
@@ -88,7 +88,7 @@ class PGNotifyServiceTest {
         Supplier<Object> query = mock(Supplier.class);
 
         // When
-        CompletableFuture<Object> future = service.queryLatestResultFor(, correlationId, query);
+        CompletableFuture<Object> future = service.sendAndAwait(, correlationId, query);
 
         // Then
         verify(channel).subscribe(messageHandlerCaptor.capture());
@@ -113,7 +113,7 @@ class PGNotifyServiceTest {
         when(query.get()).thenReturn("result");
 
         // When
-        CompletableFuture<Object> future = service.queryLatestResultFor(, correlationId, query);
+        CompletableFuture<Object> future = service.sendAndAwait(, correlationId, query);
 
         // Then
         verify(channel).subscribe(messageHandlerCaptor.capture());
@@ -134,7 +134,7 @@ class PGNotifyServiceTest {
         Supplier<Object> query = () -> "result";
 
         // When
-        CompletableFuture<Object> future = service.queryLatestResultFor(, correlationId, query);
+        CompletableFuture<Object> future = service.sendAndAwait(, correlationId, query);
 
         // Then
         verify(channel).subscribe(messageHandlerCaptor.capture());

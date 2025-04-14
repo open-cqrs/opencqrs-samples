@@ -2,7 +2,7 @@ package com.example.cqrs.async;
 
 import java.io.Serializable;
 
-public record PGMessagePayload(
+public record ProjectorMessage(
         String readModelId,
         String correlationId
 ) implements Serializable {

@@ -5,7 +5,7 @@ import com.example.cqrs.domain.api.rental.BookReceivedEvent;
 import com.example.cqrs.domain.api.rental.BookReturnedEvent;
 import com.example.cqrs.domain.persistence.ReaderEntity;
 import com.example.cqrs.domain.persistence.ReaderRepository;
-import com.example.cqrs.async.PGNotifyService;
+import com.example.cqrs.async.CommandBridge;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +31,7 @@ import static org.mockito.Mockito.when;
 public class ReaderProjectorTest {
 
     @Autowired private ReaderRepository repository;
-    @MockitoBean private PGNotifyService syncer;
+    @MockitoBean private CommandBridge syncer;
     @MockitoBean private MessageChannel channel;
 
     @Autowired private ReaderProjector projector;
