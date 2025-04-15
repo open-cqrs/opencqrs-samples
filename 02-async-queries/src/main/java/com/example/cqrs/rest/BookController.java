@@ -31,17 +31,21 @@ public class BookController {
 
     @PostMapping("/lend")
     public Object borrow(@RequestBody LendBookCommand command) {
-        return bridge.sendAndAwait(
+        bridge.sendAndAwait(
                 command,
                 "readers"
         );
+
+        return repository.findById(command.id()).get().getLentBookISBNs().toArray();
     }
 
     @PostMapping("/return")
     public Object returnBook(@RequestBody ReturnBookCommand command) {
-        return bridge.sendAndAwait(
+        bridge.sendAndAwait(
                 command,
                 "readers"
         );
+
+        return repository.findById(command.id()).get().getLentBookISBNs().toArray();
     }
 }
