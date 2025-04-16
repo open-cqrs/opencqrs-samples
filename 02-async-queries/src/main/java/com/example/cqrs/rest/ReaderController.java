@@ -3,10 +3,8 @@ package com.example.cqrs.rest;
 import com.example.cqrs.domain.api.registration.RegisterReaderCommand;
 import com.example.cqrs.domain.persistence.ReaderRepository;
 import com.example.cqrs.async.CommandBridge;
-import com.opencqrs.framework.command.CommandRouter;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -23,11 +21,11 @@ public class ReaderController {
     }
 
     @PostMapping
-    public String registerReader(@RequestBody ReaderDetail detail) {
+    public String registerReader(@RequestBody ReaderDetail detail) throws InterruptedException {
 
         var id = UUID.randomUUID();
 
-        bridge.sendAndAwait(
+        bridge.sendWaitingForEventsHandled(
                 new RegisterReaderCommand(
                         id,
                         detail.firstName(),

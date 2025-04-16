@@ -30,8 +30,8 @@ public class BookController {
     }
 
     @PostMapping("/lend")
-    public Object borrow(@RequestBody LendBookCommand command) {
-        bridge.sendAndAwait(
+    public Object borrow(@RequestBody LendBookCommand command) throws InterruptedException {
+        bridge.sendWaitingForEventsHandled(
                 command,
                 "readers"
         );
@@ -40,8 +40,8 @@ public class BookController {
     }
 
     @PostMapping("/return")
-    public Object returnBook(@RequestBody ReturnBookCommand command) {
-        bridge.sendAndAwait(
+    public Object returnBook(@RequestBody ReturnBookCommand command) throws InterruptedException {
+        bridge.sendWaitingForEventsHandled(
                 command,
                 "readers"
         );

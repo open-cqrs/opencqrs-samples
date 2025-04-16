@@ -41,7 +41,7 @@ class CommandBridgeTest {
         Supplier<Object> query = () -> expectedResult;
 
         // When
-        CompletableFuture<Object> future = service.sendAndAwait(, correlationId, query);
+        CompletableFuture<Object> future = service.sendWaitingForEventsHandled(, correlationId, query);
 
         // Then
         verify(channel).subscribe(messageHandlerCaptor.capture());
@@ -65,7 +65,7 @@ class CommandBridgeTest {
         Supplier<Object> query = () -> "query-result";
 
         // When
-        CompletableFuture<Object> future = service.sendAndAwait(, correlationId, query);
+        CompletableFuture<Object> future = service.sendWaitingForEventsHandled(, correlationId, query);
 
         // Then
         verify(channel).subscribe(messageHandlerCaptor.capture());
@@ -88,7 +88,7 @@ class CommandBridgeTest {
         Supplier<Object> query = mock(Supplier.class);
 
         // When
-        CompletableFuture<Object> future = service.sendAndAwait(, correlationId, query);
+        CompletableFuture<Object> future = service.sendWaitingForEventsHandled(, correlationId, query);
 
         // Then
         verify(channel).subscribe(messageHandlerCaptor.capture());
@@ -113,7 +113,7 @@ class CommandBridgeTest {
         when(query.get()).thenReturn("result");
 
         // When
-        CompletableFuture<Object> future = service.sendAndAwait(, correlationId, query);
+        CompletableFuture<Object> future = service.sendWaitingForEventsHandled(, correlationId, query);
 
         // Then
         verify(channel).subscribe(messageHandlerCaptor.capture());
@@ -134,7 +134,7 @@ class CommandBridgeTest {
         Supplier<Object> query = () -> "result";
 
         // When
-        CompletableFuture<Object> future = service.sendAndAwait(, correlationId, query);
+        CompletableFuture<Object> future = service.sendWaitingForEventsHandled(, correlationId, query);
 
         // Then
         verify(channel).subscribe(messageHandlerCaptor.capture());

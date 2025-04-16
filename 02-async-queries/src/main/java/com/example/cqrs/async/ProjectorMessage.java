@@ -3,7 +3,7 @@ package com.example.cqrs.async;
 import java.io.Serializable;
 
 public record ProjectorMessage(
-        String readModelId,
+        String group,
         String correlationId
 ) implements Serializable {
 }
