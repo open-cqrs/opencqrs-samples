@@ -5,10 +5,12 @@ import com.example.cqrs.domain.api.rental.LendBookCommand;
 import com.example.cqrs.domain.api.rental.ReturnBookCommand;
 import com.example.cqrs.domain.persistence.ReaderRepository;
 import com.example.cqrs.async.CommandBridge;
+import com.opencqrs.framework.CqrsFrameworkException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.UUID;
 
@@ -30,22 +32,22 @@ public class BookController {
     }
 
     @PostMapping("/lend")
-    public Object borrow(@RequestBody LendBookCommand command) throws InterruptedException {
-        bridge.sendWaitingForEventsHandled(
-                command,
-                "readers"
-        );
+    public SseEmitter borrow(@RequestBody LendBookCommand command) throws InterruptedException, CqrsFrameworkException {
+        SseEmitter emitter = new SseEmitter();
 
-        return repository.findById(command.id()).get().getLentBookISBNs().toArray();
+        return bridge.sendThenEmitSupplierResult(
+                command,
+                "readers",
+                () -> repository.findById(command.id()).get().getLentBookISBNs().toArray()
+        );
     }
 
     @PostMapping("/return")
-    public Object returnBook(@RequestBody ReturnBookCommand command) throws InterruptedException {
-        bridge.sendWaitingForEventsHandled(
+    public Object returnBook(@RequestBody ReturnBookCommand command) throws InterruptedException, CqrsFrameworkException {
+        return bridge.sendWaitingForSupplierResult(
                 command,
-                "readers"
+                "readers",
+                () -> repository.findById(command.id()).get().getLentBookISBNs().toArray()
         );
-
-        return repository.findById(command.id()).get().getLentBookISBNs().toArray();
     }
 }

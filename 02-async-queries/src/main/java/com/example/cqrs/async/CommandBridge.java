@@ -1,11 +1,14 @@
 package com.example.cqrs.async;
 
+import com.opencqrs.framework.CqrsFrameworkException;
 import com.opencqrs.framework.command.Command;
 import com.opencqrs.framework.command.CommandRouter;
 import org.springframework.messaging.MessageHandler;
 import org.springframework.messaging.SubscribableChannel;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -27,7 +30,7 @@ public class CommandBridge { // TODO: Rename. Something with Commands and Subscr
 
     public <R> R send(Command command, Map<String, ?> metadata) { return commandRouter.send(command, metadata); }
 
-    public <R> R sendWaitingForEventsHandled(Command command, String group) throws InterruptedException { // TODO: Wait for multiple groups (list)
+    public <R> R sendWaitingForEventsHandled(Command command, String group) throws CqrsFrameworkException, InterruptedException { // TODO: Wait for multiple groups (list)
 
         var correlationId = UUID.randomUUID().toString();
         var signal = new Object();
@@ -60,7 +63,7 @@ public class CommandBridge { // TODO: Rename. Something with Commands and Subscr
         }
     }
 
-    public <R> R sendWaitingForSupplierResult(Command command, String group, Supplier<R> supplier) {
+    public <R> R sendWaitingForSupplierResult(Command command, String group, Supplier<R> supplier) throws CqrsFrameworkException, InterruptedException {
         var correlationId = UUID.randomUUID().toString();
         CompletableFuture<R> future = new CompletableFuture<>();
 
@@ -78,9 +81,46 @@ public class CommandBridge { // TODO: Rename. Something with Commands and Subscr
                 Map.of("correlation-id", correlationId)
         );
 
-        return future
-            .orTimeout(5, TimeUnit.SECONDS)
-            .whenComplete((r, ex) -> channel.unsubscribe(messageHandler))
-            .join();
+        try {
+            return future
+                    .orTimeout(5, TimeUnit.SECONDS)
+                    .whenComplete((r, ex) -> channel.unsubscribe(messageHandler))
+                    .join();
+        } catch (Throwable ex) {
+            throw new InterruptedException();
+        }
+    }
+
+    // TODO
+
+    public SseEmitter sendThenEmitSupplierResult(Command command, String group, Supplier<Object> supplier) {
+        var correlationId = UUID.randomUUID().toString();
+
+        // Setup emitter
+        SseEmitter emitter = new SseEmitter(5000L);
+
+        // Setup message handler
+        MessageHandler messageHandler = m -> {
+            var payload = (ProjectorMessage) m.getPayload();
+
+            if (payload.group().equals(group) && payload.correlationId().equals(correlationId)) {
+                try {
+                    emitter.send(supplier.get());
+                } catch (Throwable e) {
+                    throw new RuntimeException(e); // TODO: Refine
+                } finally {
+                    emitter.complete();
+                }
+            }
+        };
+        channel.subscribe(messageHandler);
+        emitter.onCompletion(() -> channel.unsubscribe(messageHandler));
+
+        commandRouter.send(
+                command,
+                Map.of("correlation-id", correlationId)
+        );
+
+        return emitter;
     }
 }
