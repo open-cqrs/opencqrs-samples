@@ -6,9 +6,7 @@ import com.opencqrs.framework.command.CommandRouter;
 import org.springframework.messaging.MessageHandler;
 import org.springframework.messaging.SubscribableChannel;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -91,13 +89,10 @@ public class CommandBridge { // TODO: Rename. Something with Commands and Subscr
         }
     }
 
-    // TODO
-
-    public SseEmitter sendThenEmitSupplierResult(Command command, String group, Supplier<Object> supplier) {
+    public <R> R sendThenExecute(Command command, String group, Runnable runnable) {
         var correlationId = UUID.randomUUID().toString();
-
-        // Setup emitter
-        SseEmitter emitter = new SseEmitter(5000L);
+        var unsubscriber = new CompletableFuture<>()
+                .orTimeout(5, TimeUnit.SECONDS);
 
         // Setup message handler
         MessageHandler messageHandler = m -> {
@@ -105,22 +100,18 @@ public class CommandBridge { // TODO: Rename. Something with Commands and Subscr
 
             if (payload.group().equals(group) && payload.correlationId().equals(correlationId)) {
                 try {
-                    emitter.send(supplier.get());
-                } catch (Throwable e) {
-                    throw new RuntimeException(e); // TODO: Refine
+                    runnable.run();
                 } finally {
-                    emitter.complete();
+                    unsubscriber.complete(null);
                 }
             }
         };
         channel.subscribe(messageHandler);
-        emitter.onCompletion(() -> channel.unsubscribe(messageHandler));
+        unsubscriber.whenComplete((r, ex) -> channel.unsubscribe(messageHandler));
 
-        commandRouter.send(
+        return commandRouter.send(
                 command,
                 Map.of("correlation-id", correlationId)
         );
-
-        return emitter;
     }
 }

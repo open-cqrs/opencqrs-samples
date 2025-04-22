@@ -5,7 +5,6 @@ import com.example.cqrs.domain.api.rental.LendBookCommand;
 import com.example.cqrs.domain.api.rental.ReturnBookCommand;
 import com.example.cqrs.domain.persistence.ReaderRepository;
 import com.example.cqrs.async.CommandBridge;
-import com.opencqrs.framework.CqrsFrameworkException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,22 +31,44 @@ public class BookController {
     }
 
     @PostMapping("/lend")
-    public SseEmitter borrow(@RequestBody LendBookCommand command) throws InterruptedException, CqrsFrameworkException {
+    public SseEmitter borrow(@RequestBody LendBookCommand command) {
         SseEmitter emitter = new SseEmitter();
 
-        return bridge.sendThenEmitSupplierResult(
-                command,
-                "readers",
-                () -> repository.findById(command.id()).get().getLentBookISBNs().toArray()
+        bridge.sendThenExecute(
+            command,
+            "readers",
+            () -> {
+                try {
+                    emitter.send(repository.findById(command.id()).get().getLentBookISBNs().toArray());
+                } catch (Throwable e) {
+                    throw new RuntimeException(e);
+                } finally {
+                    emitter.complete();
+                }
+            }
         );
+
+        return emitter;
     }
 
     @PostMapping("/return")
-    public Object returnBook(@RequestBody ReturnBookCommand command) throws InterruptedException, CqrsFrameworkException {
-        return bridge.sendWaitingForSupplierResult(
-                command,
-                "readers",
-                () -> repository.findById(command.id()).get().getLentBookISBNs().toArray()
+    public SseEmitter returnBook(@RequestBody ReturnBookCommand command) {
+        SseEmitter emitter = new SseEmitter();
+
+        bridge.sendThenExecute(
+            command,
+            "readers",
+            () -> {
+                try {
+                    emitter.send(repository.findById(command.id()).get().getLentBookISBNs().toArray());
+                } catch (Throwable e) {
+                    throw new RuntimeException(e);
+                } finally {
+                    emitter.complete();
+                }
+            }
         );
+
+        return emitter;
     }
 }
