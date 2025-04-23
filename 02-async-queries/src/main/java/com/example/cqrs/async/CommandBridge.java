@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Supplier;
 
 @Service
 public class CommandBridge { // TODO: Rename. Something with Commands and Subscriptions
@@ -58,34 +57,6 @@ public class CommandBridge { // TODO: Rename. Something with Commands and Subscr
             } finally {
                 channel.unsubscribe(messageHandler);
             }
-        }
-    }
-
-    public <R> R sendWaitingForSupplierResult(Command command, String group, Supplier<R> supplier) throws CqrsFrameworkException, InterruptedException {
-        var correlationId = UUID.randomUUID().toString();
-        CompletableFuture<R> future = new CompletableFuture<>();
-
-        MessageHandler messageHandler = m -> {
-            var payload = (ProjectorMessage) m.getPayload();
-
-            if (payload.group().equals(group) && payload.correlationId().equals(correlationId)) {
-                    future.complete(supplier.get());
-            }
-        };
-        channel.subscribe(messageHandler);
-
-        commandRouter.send(
-                command,
-                Map.of("correlation-id", correlationId)
-        );
-
-        try {
-            return future
-                    .orTimeout(5, TimeUnit.SECONDS)
-                    .whenComplete((r, ex) -> channel.unsubscribe(messageHandler))
-                    .join();
-        } catch (Throwable ex) {
-            throw new InterruptedException();
         }
     }
 
