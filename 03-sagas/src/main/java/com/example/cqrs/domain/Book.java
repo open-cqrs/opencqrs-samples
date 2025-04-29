@@ -11,6 +11,10 @@ public record Book(
         this(isbn, null);
     }
 
+    public Book withDueDate(Instant dueDate) {
+        return new Book(isbn(), dueDate);
+    }
+
     public boolean isLent() {
         return dueDate != null;
     }

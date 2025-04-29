@@ -1,9 +1,6 @@
 package com.example.cqrs.domain;
 
-import com.example.cqrs.domain.api.rental.IncrementLentBookCountCommand;
-import com.example.cqrs.domain.api.rental.LentBookCountIncrementedEvent;
-import com.example.cqrs.domain.api.rental.LoanStartedEvent;
-import com.example.cqrs.domain.api.rental.StartLoanCommand;
+import com.example.cqrs.domain.api.rental.*;
 import com.opencqrs.framework.command.*;
 import com.opencqrs.framework.eventhandler.EventHandling;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,8 +35,22 @@ public class LoanHandling {
         );
     }
 
-    @EventHandling
-    public void on(LentBookCountIncrementedEvent event, @Autowired CommandRouter router) {
+    @CommandHandling
+    public void handle(Loan loan, RequestBookCommand command, CommandEventPublisher<Loan> publisher) {
+        publisher.publish(
+                new BookRequestedEvent(loan.id())
+        );
+    }
 
+    @EventHandling
+    public void on(Loan loan, BookRequestedEvent event, @Autowired CommandRouter router) {
+        router.send(
+                new ReserveBookCommand(loan.id(), loan.isbn())
+        );
+    }
+
+    @CommandHandling
+    public void handle(CompleteLoanCommand command, CommandEventPublisher<Loan> publisher) {
+        publisher.publish(new LoanCompletedEvent(command.id()));
     }
 }

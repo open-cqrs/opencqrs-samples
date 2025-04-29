@@ -2,11 +2,12 @@ package com.example.cqrs.domain;
 
 import com.example.cqrs.domain.api.registration.ReaderRegisteredEvent;
 import com.example.cqrs.domain.api.registration.RegisterReaderCommand;
+import com.example.cqrs.domain.api.rental.IncrementLentBookCountCommand;
 import com.example.cqrs.domain.api.rental.LentBookCountIncrementedEvent;
-import com.opencqrs.framework.command.CommandEventPublisher;
-import com.opencqrs.framework.command.CommandHandlerConfiguration;
-import com.opencqrs.framework.command.CommandHandling;
-import com.opencqrs.framework.command.StateRebuilding;
+import com.example.cqrs.domain.api.rental.RequestBookCommand;
+import com.opencqrs.framework.command.*;
+import com.opencqrs.framework.eventhandler.EventHandling;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Map;
 
@@ -29,11 +30,22 @@ public class ReaderHandling {
         return new Reader(event.id());
     }
 
+    @CommandHandling
+    public void handle(Reader reader, IncrementLentBookCountCommand command, CommandEventPublisher<Reader> publisher) {
+        if (reader != null && reader.lentBooks() <= 3) {
+            publisher.publish(new LentBookCountIncrementedEvent(command.loanId(), command.readerId()));
+        } else {
+            throw new IllegalStateException("Reader cannot burrow any more books!");
+        }
+    }
+
     @StateRebuilding
     public Reader on(Reader reader, LentBookCountIncrementedEvent event) {
         return reader.incrementLentBooks();
     }
 
-
-
+    @EventHandling
+    public void on(LentBookCountIncrementedEvent event, @Autowired CommandRouter router) {
+        router.send(new RequestBookCommand(event.loanId()));
+    }
 }
