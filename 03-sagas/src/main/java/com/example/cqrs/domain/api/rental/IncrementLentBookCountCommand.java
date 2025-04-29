@@ -4,13 +4,12 @@ import com.opencqrs.framework.command.Command;
 
 import java.util.UUID;
 
-public record LendBookCommand(
-        UUID id,
-        String isbn
+public record IncrementLentBookCountCommand(
+        UUID loanId,
+        UUID readerId
 ) implements Command {
-
     @Override
     public String getSubject() {
-        return "/books/" + isbn();
+        return "/readers/" + readerId();
     }
 }

@@ -3,6 +3,12 @@ package com.example.cqrs.domain;
 import java.util.UUID;
 
 public record Reader(
-        UUID id
+        UUID id,
+        int lentBooks
 ) {
+    public Reader(UUID id) { this(id, 0); }
+
+    public Reader incrementLentBooks() {
+        return new Reader(id(), lentBooks()+1);
+    }
 }
