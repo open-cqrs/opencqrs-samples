@@ -44,7 +44,7 @@ public class ReaderHandling {
         return reader.incrementLentBooks();
     }
 
-    @EventHandling
+    @EventHandling("loan")
     public void on(LentBookCountIncrementedEvent event, @Autowired CommandRouter router) {
         router.send(new RequestBookCommand(event.loanId()));
     }

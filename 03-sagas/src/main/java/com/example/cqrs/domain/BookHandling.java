@@ -49,7 +49,7 @@ public class BookHandling {
         return book.withDueDate(Instant.now().plus(30, ChronoUnit.DAYS));
     }
 
-    @EventHandling
+    @EventHandling("loan")
     public void on(BookReservedEvent event, @Autowired CommandRouter router) {
         router.send(new CompleteLoanCommand(event.loanId()));
     }

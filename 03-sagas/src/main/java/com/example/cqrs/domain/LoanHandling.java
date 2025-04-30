@@ -28,7 +28,7 @@ public class LoanHandling {
         return new Loan(event.loanId(), event.readerId(), event.isbn());
     }
 
-    @EventHandling
+    @EventHandling("loan")
     public void on(LoanStartedEvent event, @Autowired CommandRouter router) {
         router.send(
                 new IncrementLentBookCountCommand(event.loanId(), event.readerId())
@@ -38,14 +38,14 @@ public class LoanHandling {
     @CommandHandling
     public void handle(Loan loan, RequestBookCommand command, CommandEventPublisher<Loan> publisher) {
         publisher.publish(
-                new BookRequestedEvent(loan.id())
+                new BookRequestedEvent(loan.id(), loan.isbn())
         );
     }
 
-    @EventHandling
-    public void on(Loan loan, BookRequestedEvent event, @Autowired CommandRouter router) {
+    @EventHandling("loan")
+    public void on(BookRequestedEvent event, @Autowired CommandRouter router) {
         router.send(
-                new ReserveBookCommand(loan.id(), loan.isbn())
+                new ReserveBookCommand(event.loanId(), event.isbn())
         );
     }
 
