@@ -25,11 +25,12 @@ public class ReaderHandling {
     }
 
     @CommandHandling
-    public void handle(Reader reader, IncrementLentBookCountCommand command, CommandEventPublisher<Reader> publisher) {
-        if (reader != null && reader.lentBooks() <= 3) {
+    public boolean handle(Reader reader, IncrementLentBookCountCommand command, CommandEventPublisher<Reader> publisher) {
+        if (reader != null && reader.lentBooks() < 2) {
             publisher.publish(new LentBookCountIncrementedEvent(command.loanId(), command.readerId()));
+            return true;
         } else {
-            throw new IllegalStateException("Reader cannot burrow any more books!");
+            return false;
         }
     }
 
