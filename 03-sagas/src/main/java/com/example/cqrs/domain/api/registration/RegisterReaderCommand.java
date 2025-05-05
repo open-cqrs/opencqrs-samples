@@ -14,4 +14,9 @@ public record RegisterReaderCommand(
     public String getSubject() {
         return "/readers/" + id();
     }
+
+    @Override
+    public SubjectCondition getSubjectCondition() {
+        return SubjectCondition.PRISTINE;
+    }
 }

@@ -9,18 +9,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class LoanHandling {
 
     @CommandHandling
-    public void handle(Loan loan, StartLoanCommand command, CommandEventPublisher<Loan> publisher) {
-        if (loan == null) {
-            publisher.publish(
-                    new LoanStartedEvent(
-                            command.loanId(),
-                            command.readerId(),
-                            command.isbn()
-                    )
-            );
-        } else {
-            throw new IllegalStateException("This lending process has already been started!");
-        }
+    public void handle(StartLoanCommand command, CommandEventPublisher<Loan> publisher) {
+        publisher.publish(
+                new LoanStartedEvent(
+                        command.loanId(),
+                        command.readerId(),
+                        command.isbn()
+                )
+        );
     }
 
     @StateRebuilding

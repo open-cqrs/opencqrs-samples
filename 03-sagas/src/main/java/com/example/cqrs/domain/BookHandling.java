@@ -17,17 +17,13 @@ public class BookHandling {
 
     @CommandHandling
     public void handle(Book book, PurchaseBookCommand command, CommandEventPublisher<Book> publisher) {
-        if (book == null) {
-            publisher.publish(
-                    new BookPurchasedEvent(
-                            command.isbn(),
-                            command.title(),
-                            command.author()
-                    )
-            );
-        } else {
-            throw new IllegalStateException("Book already in stock");
-        }
+        publisher.publish(
+                new BookPurchasedEvent(
+                        command.isbn(),
+                        command.title(),
+                        command.author()
+                )
+        );
     }
 
     @StateRebuilding

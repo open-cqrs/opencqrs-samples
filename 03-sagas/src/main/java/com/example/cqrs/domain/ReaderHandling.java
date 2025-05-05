@@ -9,20 +9,14 @@ import com.opencqrs.framework.command.*;
 import com.opencqrs.framework.eventhandler.EventHandling;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Map;
-
 @CommandHandlerConfiguration
 public class ReaderHandling {
 
     @CommandHandling
-    public void handle(Reader reader, RegisterReaderCommand command, CommandEventPublisher<Reader> publisher) {
-        if (reader == null) {
-            publisher.publish(
-                    new ReaderRegisteredEvent(command.id(), command.firstName(), command.lastName())
-            );
-        } else {
-            throw new IllegalStateException("Reader already registered!");
-        }
+    public void handle(RegisterReaderCommand command, CommandEventPublisher<Reader> publisher) {
+        publisher.publish(
+                new ReaderRegisteredEvent(command.id(), command.firstName(), command.lastName())
+        );
     }
 
     @StateRebuilding

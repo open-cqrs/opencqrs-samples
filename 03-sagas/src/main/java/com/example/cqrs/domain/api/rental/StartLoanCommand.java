@@ -14,4 +14,9 @@ public record StartLoanCommand(
     public String getSubject() {
         return "/loans/" + loanId();
     }
+
+    @Override
+    public SubjectCondition getSubjectCondition() {
+        return SubjectCondition.PRISTINE;
+    }
 }
