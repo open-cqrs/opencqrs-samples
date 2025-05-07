@@ -11,4 +11,8 @@ public record Reader(
     public Reader incrementLentBooks() {
         return new Reader(id(), lentBooks()+1);
     }
+
+    public Reader decrementLentBooks() {
+        return new Reader(id(), lentBooks()-1);
+    }
 }

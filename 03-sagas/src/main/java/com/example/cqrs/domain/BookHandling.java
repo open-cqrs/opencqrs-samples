@@ -32,11 +32,12 @@ public class BookHandling {
     }
 
     @CommandHandling
-    public void handle(Book book, ReserveBookCommand command, CommandEventPublisher<Book> publisher) {
+    public boolean handle(Book book, ReserveBookCommand command, CommandEventPublisher<Book> publisher) {
         if (!book.isLent()) {
             publisher.publish(new BookReservedEvent(command.loanId(), command.isbn()));
+            return true;
         } else {
-            throw new IllegalStateException("TODO: Fire compensation event(s)!");
+            return false;
         }
     }
 

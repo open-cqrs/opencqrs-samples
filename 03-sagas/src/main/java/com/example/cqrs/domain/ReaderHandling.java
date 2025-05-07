@@ -2,9 +2,7 @@ package com.example.cqrs.domain;
 
 import com.example.cqrs.domain.api.registration.ReaderRegisteredEvent;
 import com.example.cqrs.domain.api.registration.RegisterReaderCommand;
-import com.example.cqrs.domain.api.rental.IncrementLentBookCountCommand;
-import com.example.cqrs.domain.api.rental.LentBookCountIncrementedEvent;
-import com.example.cqrs.domain.api.rental.RequestBookCommand;
+import com.example.cqrs.domain.api.rental.*;
 import com.opencqrs.framework.command.*;
 import com.opencqrs.framework.eventhandler.EventHandling;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,5 +40,22 @@ public class ReaderHandling {
     @EventHandling("loan")
     public void on(LentBookCountIncrementedEvent event, @Autowired CommandRouter router) {
         router.send(new RequestBookCommand(event.loanId()));
+    }
+
+    @CommandHandling
+    public void handle(Reader reader, DecrementLentBooksCounterCommand command, CommandEventPublisher<Reader> publisher) {
+        publisher.publish(new LentBookCountDecrementedEvent(command.loanId(), command.readerId()));
+    }
+
+    @StateRebuilding
+    public Reader on(Reader reader, LentBookCountDecrementedEvent event) {
+        return reader.decrementLentBooks();
+    }
+
+    @EventHandling("loan")
+    public void on(LentBookCountDecrementedEvent event, @Autowired CommandRouter router) {
+        router.send(
+                new CancellLoanCommand(event.loandId())
+        );
     }
 }

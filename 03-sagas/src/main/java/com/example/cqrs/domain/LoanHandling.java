@@ -45,8 +45,26 @@ public class LoanHandling {
 
     @EventHandling("loan")
     public void on(BookRequestedEvent event, @Autowired CommandRouter router) {
-        router.send(
+        boolean success = router.send(
                 new ReserveBookCommand(event.loanId(), event.isbn())
+        );
+
+        if(!success) {
+            router.send(
+                    new RejectBookRequestCommand(event.loanId())
+            );
+        }
+    }
+
+    @CommandHandling
+    public void on(Loan loan, RejectBookRequestCommand command, CommandEventPublisher<Loan> publisher) {
+        publisher.publish(new BookRequestRejectedEvent(command.id(), loan.readerId()));
+    }
+
+    @EventHandling("loan")
+    public void on(BookRequestRejectedEvent event, @Autowired CommandRouter router) {
+        router.send(
+                new DecrementLentBooksCounterCommand(event.loandId(), event.readerId())
         );
     }
 
