@@ -27,7 +27,7 @@ public class LoanHandling {
     @EventHandling("loan")
     public void on(LoanStartedEvent event, @Autowired CommandRouter router) {
         boolean success = router.send(
-                new IncrementLentBookCountCommand(event.loanId(), event.readerId())
+                new AddLoanToReaderCommand(event.loanId(), event.readerId())
         );
         if(!success) {
             router.send(
@@ -64,7 +64,7 @@ public class LoanHandling {
     @EventHandling("loan")
     public void on(BookRequestRejectedEvent event, @Autowired CommandRouter router) {
         router.send(
-                new DecrementLentBooksCounterCommand(event.loandId(), event.readerId())
+                new RemoveLoanFromReaderCommand(event.loandId(), event.readerId())
         );
     }
 

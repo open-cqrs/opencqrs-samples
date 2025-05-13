@@ -4,7 +4,7 @@ import com.opencqrs.framework.command.Command;
 
 import java.util.UUID;
 
-public record DecrementLentBooksCounterCommand(
+public record AddLoanToReaderCommand(
         UUID loanId,
         UUID readerId
 ) implements Command {
@@ -12,4 +12,7 @@ public record DecrementLentBooksCounterCommand(
     public String getSubject() {
         return "/readers/" + readerId();
     }
+
+    @Override
+    public SubjectCondition getSubjectCondition() { return SubjectCondition.EXISTS; }
 }

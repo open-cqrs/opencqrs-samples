@@ -23,9 +23,9 @@ public class ReaderHandling {
     }
 
     @CommandHandling
-    public boolean handle(Reader reader, IncrementLentBookCountCommand command, CommandEventPublisher<Reader> publisher) {
-        if (reader != null && reader.lentBooks() < 2) {
-            publisher.publish(new LentBookCountIncrementedEvent(command.loanId(), command.readerId()));
+    public boolean handle(Reader reader, AddLoanToReaderCommand command, CommandEventPublisher<Reader> publisher) {
+        if (reader.activeLoans().size() < 2 && !reader.activeLoans().contains(command.loanId())) {
+            publisher.publish(new LoanAddedToReaderEvent(command.loanId(), command.readerId()));
             return true;
         } else {
             return false;
@@ -33,27 +33,27 @@ public class ReaderHandling {
     }
 
     @StateRebuilding
-    public Reader on(Reader reader, LentBookCountIncrementedEvent event) {
-        return reader.incrementLentBooks();
+    public Reader on(Reader reader, LoanAddedToReaderEvent event) {
+        return reader.addLoan(event.loanId());
     }
 
     @EventHandling("loan")
-    public void on(LentBookCountIncrementedEvent event, @Autowired CommandRouter router) {
+    public void on(LoanAddedToReaderEvent event, @Autowired CommandRouter router) {
         router.send(new RequestBookCommand(event.loanId()));
     }
 
     @CommandHandling
-    public void handle(Reader reader, DecrementLentBooksCounterCommand command, CommandEventPublisher<Reader> publisher) {
-        publisher.publish(new LentBookCountDecrementedEvent(command.loanId(), command.readerId()));
+    public void handle(RemoveLoanFromReaderCommand command, CommandEventPublisher<Reader> publisher) {
+        publisher.publish(new LoanRemovedFromReaderEvent(command.loanId(), command.readerId()));
     }
 
     @StateRebuilding
-    public Reader on(Reader reader, LentBookCountDecrementedEvent event) {
-        return reader.decrementLentBooks();
+    public Reader on(Reader reader, LoanRemovedFromReaderEvent event) {
+        return reader.removeLoan(event.loandId());
     }
 
     @EventHandling("loan")
-    public void on(LentBookCountDecrementedEvent event, @Autowired CommandRouter router) {
+    public void on(LoanRemovedFromReaderEvent event, @Autowired CommandRouter router) {
         router.send(
                 new CancellLoanCommand(event.loandId())
         );
