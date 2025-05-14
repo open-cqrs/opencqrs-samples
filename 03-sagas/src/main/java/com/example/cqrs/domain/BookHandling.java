@@ -32,7 +32,7 @@ public class BookHandling {
     }
 
     @CommandHandling
-    public boolean handle(Book book, ReserveBookCommand command, CommandEventPublisher<Book> publisher) {
+    public Boolean handle(Book book, ReserveBookCommand command, CommandEventPublisher<Book> publisher) {
         if (!book.isLent()) {
             publisher.publish(new BookReservedEvent(command.loanId(), command.isbn()));
             return true;

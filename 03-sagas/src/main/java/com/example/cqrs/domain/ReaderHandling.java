@@ -23,12 +23,16 @@ public class ReaderHandling {
     }
 
     @CommandHandling
-    public boolean handle(Reader reader, AddLoanToReaderCommand command, CommandEventPublisher<Reader> publisher) {
-        if (reader.activeLoans().size() < 2 && !reader.activeLoans().contains(command.loanId())) {
-            publisher.publish(new LoanAddedToReaderEvent(command.loanId(), command.readerId()));
-            return true;
+    public Boolean handle(Reader reader, AddLoanToReaderCommand command, CommandEventPublisher<Reader> publisher) {
+        if (!reader.activeLoans().contains(command.loanId())) {
+            if (reader.activeLoans().size() < 2) {
+                publisher.publish(new LoanAddedToReaderEvent(command.loanId(), command.readerId()));
+                return true;
+            } else {
+                return false;
+            }
         } else {
-            return false;
+            return true;
         }
     }
 
