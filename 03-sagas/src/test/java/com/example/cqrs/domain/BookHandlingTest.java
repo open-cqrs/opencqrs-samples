@@ -32,6 +32,23 @@ public class BookHandlingTest {
     }
 
     @Test
+    public void willIgnoreDuplicateReservation(@Autowired CommandHandlingTestFixture<Book, ReserveBookCommand, Boolean> fixture) {
+
+        var loanId = UUID.randomUUID();
+        var isbn = "012-34567890";
+
+        fixture
+                .given(
+                        new BookPurchasedEvent(isbn, "Title", "A. Uthor"),
+                        new BookReservedEvent(loanId, isbn)
+                ).when(
+                        new ReserveBookCommand(loanId, isbn)
+                ).expectResult(
+                        true
+                ).expectNoEvents();
+    }
+
+    @Test
     public void willRejectReservation(@Autowired CommandHandlingTestFixture<Book, ReserveBookCommand, Boolean> fixture) {
 
         var loanId1 = UUID.randomUUID();

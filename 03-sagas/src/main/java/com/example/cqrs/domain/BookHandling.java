@@ -37,13 +37,13 @@ public class BookHandling {
             publisher.publish(new BookReservedEvent(command.loanId(), command.isbn()));
             return true;
         } else {
-            return false;
+            return book.activeLoan().equals(command.loanId());
         }
     }
 
     @StateRebuilding
     public Book on(Book book, BookReservedEvent event) {
-        return book.withDueDate(Instant.now().plus(30, ChronoUnit.DAYS));
+        return book.lendOut(event.loanId());
     }
 
     @EventHandling("loan")
