@@ -27,8 +27,7 @@ A naive implementation without a dedicated 'coordinator', i.e. with the involved
 
 Here, we annotated each command and event with the entity information available and needed to successfully process them. And through this, we instantly see the problem with this approach:
 
-When trying to send back a `Receive Book`-command for the reader lending the book, we need their ID. However, since the book's `Reserve Book`-command does _not_ have the reader ID available 
-- since there is no reason for it to from a business-logic perspective - this information is missing now (thus marked red).
+When trying to send back a `Receive Book`-command for the reader lending the book, we need their ID. However, since the book's `Reserve Book`-command does _not_ have the reader ID available (since there is no reason for it to from a business-logic perspective) this information is missing now (thus marked red).
 
 Technically, this problem can be easily solved by just propagating the reader ID through the entire workflow, i.e. also providing it to `Reserve Book` and its subsequent event, 
 but that would explicitly couple the book's domain-logic with the reader's for purely technical reasons.
