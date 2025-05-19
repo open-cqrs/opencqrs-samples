@@ -23,7 +23,7 @@ The first has to be validated against the write-model of the reader, the second 
 
 A naive implementation without a dedicated 'coordinator', i.e. with the involved entities simply exchanging messages between each other, could look something like this:
 
-[INSERT GRAPHIC: Naive Solution]
+![](diagrams/naive-solution.svg)
 
 Here, we annotated each command and event with the entity information available and needed to successfully process them. And through this, we instantly see the problem with this approach:
 
@@ -54,14 +54,14 @@ Thus, the approach chosen here is to model saga-coordinators/orchestrators as th
 
 In the case of a successful loan, with no errors happening, our saga will look like this:
 
-[INSERT GRAPHIC: Happy Path - Reader]
+![](diagrams/happy-path-reader.svg)
 
 - We start with an initializing command which creates the loan subject-instance for the given reader-ID/book-ISBN combination.
 - The corresponding event is handled by issuing the appropriate command under the reader's subject
 - The command is validated (reader hasn't reached their limit of lent books), the reader's write-model, it's corresponding event is fired and the reader's write-model updated with a reference to the loan
 - Said event is handled by issuing a command back under the loan's subject, which kicks of the saga's validation on the book's side:
 
-[INSERT GRAPHIC: Happy Path - Book]
+![](diagrams/happy-path-book.svg)
 
 The logic is basically identical to the reader's side of the transaction, with the book's write-model also being updated with a reference to its new, currently active loan.
 
