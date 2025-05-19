@@ -47,7 +47,7 @@ Using regular `@Component`- or `@Service`-beans comes with two issues on its own
 - They only exist in memory, thus the reader/book-correlation (realized via fields inside the bean) would be lost in case of an erroneous JVM-shutdown, requiring some further external infrastructure (such as a DB or Redis) for persistence
 - OpenCQRS-Eventhandlers require their parent classes to be singleton beans (Spring's default), whereas saga-beans would have to be instantiated on a per-request basis (i.e. request-scoped).
 
-Thus, the approach chosen here is to model saga-coordinators/orchestrators as their own subject alongside the existing domain-entities. In specific case, we call this new subject-type: `Loan`.
+Thus, the approach chosen here is to model saga-coordinators/orchestrators as their own subject alongside the existing domain-entities. In our specific case, we call this new subject-type: `Loan`.
 
 ## Happy Paths
 
@@ -63,10 +63,6 @@ In the case of a successful loan, with no errors happening, our saga will look l
 ![](diagrams/happy-path-book.svg)
 
 The logic is basically identical to the reader's side of the transaction, with the book's write-model also being updated with a reference to its new, currently active loan.
-
-[Discuss idempotency here?]
-
-[Discuss dependency on loan ID/ref here?]
 
 ## Error Paths
 
@@ -85,3 +81,5 @@ with a reference to the loan being processed via the `Loan Added`-event. Said ev
 ![](diagrams/error-path-book-1.svg)
 
 ![](diagrams/error-path-book-2.svg)
+
+In each case, the transaction ends in a clean state where both subject's constraints are preserved.
