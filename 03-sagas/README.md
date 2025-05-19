@@ -77,10 +77,11 @@ For these cases, we also have to think about how to roll back the 'dirty' state 
 If the command handler of the reader's `Add Loan`-command rejects (signified by return value `false`), due to an already reached limit of active loans, the rollback is straight-forward since no state-changing events have been fired yet.
 Simply issue a `Cancel Loan`-command and be done:
 
-[INSERT GRAPHIC: Error Path - Reader]
+![](diagrams/error-path-reader.svg)
 
 Things are more complicated, if the book's `Reserve Book`-command rejects, because the book in question is already being reserved by another active loan: At this point in the transaction, the reader's write-model has already been updated
 with a reference to the loan being processed via the `Loan Added`-event. Said event must now be _compensated_, before cancelling the lending process altogether:
 
-[INSERT GRAPHIC: Error Path - Book]
+![](diagrams/error-path-book-1.svg)
 
+![](diagrams/error-path-book-2.svg)
