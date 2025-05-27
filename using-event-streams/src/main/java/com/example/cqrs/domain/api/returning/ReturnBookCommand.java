@@ -13,4 +13,7 @@ public record ReturnBookCommand(
     public String getSubject() {
         return "/books/" + isbn() + "/copies/" + id();
     }
+
+    @Override
+    public SubjectCondition getSubjectCondition() { return SubjectCondition.EXISTS; }
 }
