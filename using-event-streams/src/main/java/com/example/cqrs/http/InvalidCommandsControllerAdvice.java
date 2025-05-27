@@ -1,4 +1,4 @@
-package com.example.cqrs.rest;
+package com.example.cqrs.http;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
