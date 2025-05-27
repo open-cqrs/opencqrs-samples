@@ -9,7 +9,6 @@ group = "com.opencqrs"
 
 repositories {
     mavenCentral()
-    mavenLocal()
 }
 
 java {
@@ -24,9 +23,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.integration:spring-integration-jdbc")
     implementation("org.postgresql:postgresql:42.7.3")
-//    runtimeOnly("com.h2database:h2")
-    implementation("com.opencqrs:framework-spring-boot-starter:1.0.0")
-    testImplementation("com.opencqrs:framework-test:1.0.0")
+    implementation("com.opencqrs:framework-spring-boot-starter:1.0-rc1")
+    testImplementation("com.opencqrs:framework-test:1.0-rc1")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.mockito:mockito-core:2.1.0")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
