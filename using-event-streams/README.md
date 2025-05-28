@@ -8,11 +8,11 @@ This tutorial assumes you have at least completed the official [OpenCQRS-tutoria
 
 ---
 
-A common issue with event-sourcing is that in a long-lived and/or highly utilized app the event-trail with grow to considerable lengths, which can impact performance when a write-model needs to be sourced especially if when only a comparatively small number of events actually pertain to it.
+A common issue with event-sourcing is that in a long-lived or highly utilized app the event-trail will grow to considerable lengths. This can impact performance when sourcing the state, especially when only few events actually pertain to the entity being sourced.
 
-To remedy this, EventSourcingDB provides on with the ability to partition the events contained in the store into smaller streams based on their [subject](https://docs.eventsourcingdb.io/fundamentals/subjects/).
+To remedy this, EventSourcingDB provides on with the ability to partition events into smaller streams based on their [subject](https://docs.eventsourcingdb.io/fundamentals/subjects/).
 
-This sample app will showcase, how the OpenCQRS-framework leverages this feature to both model hierarchical relationships between domain entities and source them efficiently inside the business logic.
+This sample app showcases, how the OpenCQRS-framework leverages this feature to both model hierarchical relationships between domain entities and source them efficiently.
 
 # The Domain
 
