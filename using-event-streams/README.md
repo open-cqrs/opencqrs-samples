@@ -63,3 +63,20 @@ A reader borrowing and eventually returning a given copy of the book. The Subjec
 ```
 
 On success, they yield a `BookCopyLentEvent` and a `BookCopyReturnedEvent`, respectively
+
+# Running the app
+
+To run the app, make sure you have [Docker](https://www.docker.com/) installed on your system.
+
+Then run:
+
+```bash
+docker-compose up
+```
+
+This will boot up
+
+- an instance of the EventSourcingDB
+- an instance of the app itself
+
+To interact with the app, we provide a [collection](clients) of requests for [Postman](https://www.postman.com/) and [Bruno](https://www.usebruno.com/) API clients.
