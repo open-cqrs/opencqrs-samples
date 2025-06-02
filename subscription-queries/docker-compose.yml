@@ -1,12 +1,9 @@
-version: '3.8'
-
 services:
-  event-store:
-    image: docker.io/thenativeweb/eventsourcingdb:1.0.1
-    user: "root:root"
+  esdb:
+    image: docker.io/thenativeweb/eventsourcingdb:latest
     volumes:
-      - event-data:/events
-    command: "run --api-token secret --data-directory /events --http-enabled=true --https-enabled=false --with-ui"
+      - event-data:/var/lib/esdb
+    command: "run --api-token secret --data-directory /var/lib/esdb --http-enabled=true --https-enabled=false --with-ui"
     ports:
       - "3000:3000"
 
@@ -29,9 +26,9 @@ services:
       dockerfile: Dockerfile
     depends_on:
       - postgres
-      - event-store
+      - esdb
     environment:
-      ESDB_SERVER_URI: http://event-store:3000
+      ESDB_SERVER_URI: http://esdb:3000
       ESDB_SERVER_API_TOKEN: secret
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/mydatabase
       SPRING_DATASOURCE_USERNAME: myuser
@@ -39,8 +36,6 @@ services:
       SPRING_SQL_INIT_MODE: never
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SPRING_JPA_SHOW_SQL: false
-    ports:
-      - "8080"
     deploy:
       replicas: 3
 
