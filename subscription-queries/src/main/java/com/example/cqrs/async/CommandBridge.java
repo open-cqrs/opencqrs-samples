@@ -13,7 +13,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 @Service
-public class CommandBridge { // TODO: Rename. Something with Commands and Subscriptions
+public class CommandBridge {
 
     private final CommandRouter commandRouter;
     private final SubscribableChannel channel;
@@ -27,7 +27,7 @@ public class CommandBridge { // TODO: Rename. Something with Commands and Subscr
 
     public <R> R send(Command command, Map<String, ?> metadata) { return commandRouter.send(command, metadata); }
 
-    public <R> R sendWaitingForEventsHandled(Command command, String group) throws CqrsFrameworkException, InterruptedException { // TODO: Wait for multiple groups (list)
+    public <R> R sendWaitingForEventsHandled(Command command, String group) throws CqrsFrameworkException, InterruptedException {
 
         var correlationId = UUID.randomUUID().toString();
         var signal = new Object();
