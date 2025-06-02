@@ -1,4 +1,4 @@
-package com.example.cqrs.rest;
+package com.example.cqrs.http;
 
 import com.example.cqrs.domain.api.borrowing.LendBookCommand;
 import com.example.cqrs.domain.api.purchasing.PurchaseBookCommand;

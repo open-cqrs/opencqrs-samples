@@ -19,6 +19,16 @@ public class BookHandling {
     @CommandHandling
     public UUID handle(Book book, PurchaseBookCommand command, CommandEventPublisher<Book> publisher, @Autowired UUIDGenerator uuidGen) {
 
+        /*
+         * Note:
+         *
+         * For the purposes of this sample app, the book-purchasing logic has been simplified into a single command.
+         *
+         * The proper way of handling a purchase would have been to have a separate 'Purchase Book Copy' and 'Add Book Information' commands,
+         * where the latter would be issued while handling the BookCopyAddedEvent fired by the former.
+         *
+         * Both commands should operate under the 'PRISTINE' subject-condition.
+         */
         if (book == null) {
             publisher.publish(
                     new BookInformationAddedEvent(
@@ -34,10 +44,8 @@ public class BookHandling {
             }
         }
 
-        var id = uuidGen.getNextUUID();
-
+        UUID id = uuidGen.getNextUUID();
         publisher.publishRelative("copies/" + id, new BookCopyAddedEvent(id));
-
         return id;
     }
 
