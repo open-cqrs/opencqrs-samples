@@ -1,5 +1,6 @@
 package com.example.cqrs.async;
 
+import com.example.cqrs.utils.UUIDGenerator;
 import com.opencqrs.framework.CqrsFrameworkException;
 import com.opencqrs.framework.command.Command;
 import com.opencqrs.framework.command.CommandRouter;
@@ -8,9 +9,9 @@ import org.springframework.messaging.SubscribableChannel;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * This class is wrapper for {@link com.opencqrs.framework.command.CommandRouter} and can be used in its stead.
@@ -21,10 +22,12 @@ public class CommandBridge {
 
     private final CommandRouter commandRouter;
     private final SubscribableChannel channel;
+    private final UUIDGenerator uuidGenerator;
 
-    public CommandBridge(CommandRouter commandRouter, SubscribableChannel channel) {
+    public CommandBridge(CommandRouter commandRouter, SubscribableChannel channel, UUIDGenerator uuidGenerator) {
         this.commandRouter = commandRouter;
         this.channel = channel;
+        this.uuidGenerator = uuidGenerator;
     }
 
     /**
@@ -50,8 +53,9 @@ public class CommandBridge {
      */
     public <R> R sendWaitingForEventsHandled(Command command, String group) throws CqrsFrameworkException, InterruptedException {
 
-        var correlationId = UUID.randomUUID().toString();
+        var correlationId = uuidGenerator.getNextUUIDAsString();
         var signal = new Object();
+        AtomicBoolean eventHandled = new AtomicBoolean(false);
 
         synchronized (signal) {
 
@@ -60,6 +64,7 @@ public class CommandBridge {
 
                 if (payload.group().equals(group) && payload.correlationId().equals(correlationId)) {
                     synchronized (signal) {
+                        eventHandled.set(true);
                         signal.notify();
                     }
                 }
@@ -73,6 +78,10 @@ public class CommandBridge {
                 );
 
                 signal.wait(5000);
+
+                if(!eventHandled.get()) {
+                    throw new InterruptedException();
+                }
 
                 return result;
             } finally {
@@ -92,7 +101,7 @@ public class CommandBridge {
      * @param <R> the type of the command handlers return value
      */
     public <R> R sendThenExecute(Command command, String group, Runnable runnable) {
-        var correlationId = UUID.randomUUID().toString();
+        var correlationId = uuidGenerator.getNextUUIDAsString();
         var unsubscriber = new CompletableFuture<>()
                 .orTimeout(5, TimeUnit.SECONDS);
 

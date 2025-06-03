@@ -1,153 +1,126 @@
 package com.example.cqrs.service;
 
 import com.example.cqrs.async.CommandBridge;
+import com.example.cqrs.async.ProjectorMessage;
+import com.example.cqrs.utils.UUIDGenerator;
+import com.opencqrs.framework.command.Command;
+import com.opencqrs.framework.command.CommandHandlingTest;
+import com.opencqrs.framework.command.CommandRouter;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.integration.jdbc.channel.PostgresSubscribableChannel;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHandler;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.messaging.SubscribableChannel;
+import org.springframework.messaging.support.MessageBuilder;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.function.Supplier;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class CommandBridgeTest {
 
-    @MockitoBean
-    private PostgresSubscribableChannel channel;
+    @Mock
+    private CommandRouter router;
 
-    @MockitoBean private Message<String> message;
+    @Mock
+    private SubscribableChannel channel;
+
+    @Mock
+    private UUIDGenerator uuidGenerator;
+
+    @Mock private Message<String> message;
+
+    @Mock
+    private Command command;
 
     @Captor
     private ArgumentCaptor<MessageHandler> messageHandlerCaptor;
 
-    @Autowired private CommandBridge service;
+    private CommandBridge commandBridge;
+
+    @BeforeEach
+    void setUp() {
+        commandBridge = new CommandBridge(router, channel, uuidGenerator);
+    }
 
     @Test
-    void shouldCompleteWhenCorrectCorrelationIdReceived() throws ExecutionException, InterruptedException {
-        // Given
+    public void shouldProcessEventSuccessfully() throws InterruptedException {
+
+        String expectedResult = "test-result";
+        String group = "test-group";
         String correlationId = "test-correlation-id";
-        String expectedResult = "query-result";
-        Supplier<Object> query = () -> expectedResult;
 
-        // When
-        CompletableFuture<Object> future = service.sendWaitingForEventsHandled(, correlationId, query);
+        when(router.send(eq(command), any(Map.class))).thenReturn(expectedResult);
+        when(uuidGenerator.getNextUUIDAsString()).thenReturn(correlationId);
 
-        // Then
-        verify(channel).subscribe(messageHandlerCaptor.capture());
-        MessageHandler handler = messageHandlerCaptor.getValue();
+        Message<ProjectorMessage> message = MessageBuilder.withPayload(
+                new ProjectorMessage(group, correlationId)
+        ).build();
 
-        // Simulate message with matching correlation ID
-        when(message.getPayload()).thenReturn(correlationId);
-        handler.handleMessage(message);
+        doAnswer(invocation -> {
+            MessageHandler handler = messageHandlerCaptor.getValue();
 
-        // Verify that future completes with expected result
-        Object result = future.get();
+            new Thread(() -> {
+                try {
+                    Thread.sleep(100);
+                    channel.send(message);
+
+                    // Emulate the internal publish-mechanism of the SubscribableChannel by calling the MessageHandler directly
+                    handler.handleMessage(message);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }).start();
+
+            return null;
+        }).when(channel).subscribe(messageHandlerCaptor.capture());
+
+        String result = commandBridge.sendWaitingForEventsHandled(command, group);
+
         assertEquals(expectedResult, result);
-        verify(channel).unsubscribe(handler);
+        verify(router).send(eq(command), eq(Map.of("correlation-id", correlationId)));
+        verify(channel).subscribe(any(MessageHandler.class));
+        verify(channel).send(eq(message));
+        verify(channel).unsubscribe(any(MessageHandler.class));
     }
 
     @Test
-    void shouldNotCompleteWhenDifferentCorrelationIdReceived() throws InterruptedException {
-        // Given
+    public void shouldExceptOnTimeout() {
+        String expectedResult = "test-result";
+        String group = "test-group";
         String correlationId = "test-correlation-id";
-        String differentId = "different-id";
-        Supplier<Object> query = () -> "query-result";
 
-        // When
-        CompletableFuture<Object> future = service.sendWaitingForEventsHandled(, correlationId, query);
+        when(router.send(eq(command), any(Map.class))).thenReturn(expectedResult);
+        when(uuidGenerator.getNextUUIDAsString()).thenReturn(correlationId);
 
-        // Then
-        verify(channel).subscribe(messageHandlerCaptor.capture());
-        MessageHandler handler = messageHandlerCaptor.getValue();
+        doAnswer(invocation -> {
+            MessageHandler handler = messageHandlerCaptor.getValue();
 
-        // Simulate message with non-matching correlation ID
-        when(message.getPayload()).thenReturn(differentId);
-        handler.handleMessage(message);
+            new Thread(() -> {
+                try {
+                    Thread.sleep(5005);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }).start();
 
-        // Verify the future is not completed
-        assertFalse(future.isDone());
-    }
+            return null;
+        }).when(channel).subscribe(messageHandlerCaptor.capture());
 
-    @Test
-    void shouldNotExecuteQueryWhenCorrelationIdDoesNotMatch() {
-        // Given
-        String correlationId = "test-correlation-id";
-        String differentId = "different-id";
-
-        Supplier<Object> query = mock(Supplier.class);
-
-        // When
-        CompletableFuture<Object> future = service.sendWaitingForEventsHandled(, correlationId, query);
-
-        // Then
-        verify(channel).subscribe(messageHandlerCaptor.capture());
-        MessageHandler handler = messageHandlerCaptor.getValue();
-
-        // Simulate message with non-matching correlation ID
-        when(message.getPayload()).thenReturn(differentId);
-        handler.handleMessage(message);
-
-        // Verify the query was not executed
-        verifyNoInteractions(query);
-    }
-
-    private void verifyNoInteractions(Supplier<Object> query) {
-    }
-
-    @Test
-    void shouldExecuteQueryOnlyWhenCorrelationIdMatches() {
-        // Given
-        String correlationId = "test-correlation-id";
-        Supplier<Object> query = mock(Supplier.class);
-        when(query.get()).thenReturn("result");
-
-        // When
-        CompletableFuture<Object> future = service.sendWaitingForEventsHandled(, correlationId, query);
-
-        // Then
-        verify(channel).subscribe(messageHandlerCaptor.capture());
-        MessageHandler handler = messageHandlerCaptor.getValue();
-
-        // Simulate message with matching correlation ID
-        when(message.getPayload()).thenReturn(correlationId);
-        handler.handleMessage(message);
-
-        // Verify the query was executed exactly once
-        verify(query, times(1)).get();
-    }
-
-    @Test
-    void shouldUnsubscribeAfterFutureIsComplete() throws ExecutionException, InterruptedException {
-        // Given
-        String correlationId = "test-correlation-id";
-        Supplier<Object> query = () -> "result";
-
-        // When
-        CompletableFuture<Object> future = service.sendWaitingForEventsHandled(, correlationId, query);
-
-        // Then
-        verify(channel).subscribe(messageHandlerCaptor.capture());
-        MessageHandler handler = messageHandlerCaptor.getValue();
-
-        // Simulate message with matching correlation ID
-        when(message.getPayload()).thenReturn(correlationId);
-        handler.handleMessage(message);
-
-        // Wait for future to complete
-        future.get();
-
-        // Verify readerLentBooksChannel.unsubscribe was called with correct handler
-        verify(channel).unsubscribe(handler);
+        assertThrows(InterruptedException.class, () -> {
+            commandBridge.sendWaitingForEventsHandled(command, group);
+        });
     }
 }
