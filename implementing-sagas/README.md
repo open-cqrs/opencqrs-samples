@@ -1,5 +1,12 @@
 
-# Introduction
+# Implementing Sagas
+
+---
+**NOTE**
+
+This tutorial assumes you have at least completed the official [OpenCQRS-tutorial](https://docs.opencqrs.com/tutorials/) beforehand.
+
+---
 
 A common requirement occurring in distributed systems is the need to validate a request against a multitude of different services instead of just one.
 
@@ -39,15 +46,23 @@ needed at _some_ point be propagated throughout the _entire_ process can not onl
 
 To remedy the issues outlined above, one can utilize a central coordinator (also sometimes referred to as an orchestrator) that sits between/above the involved entities of the saga.
 
-In terms of the OpenCQRS-framework , this would be a bean being instantiated for each individual lending process which both persists the correlation between the reader (ID) and book (ISBN) in question,
-while using `@EventHandling`-annotated methods to listen to events pertaining to one subject to the issue commands to the other.
+In terms of the OpenCQRS-framework , we realize this by introducing a third type of subject: The [Loan](src/main/java/com/example/cqrs/domain/Loan.java).
+With this, we leverage the event-store for persisting the correlation between a reader's ID and the book's ISBN while at the same time being able to instantiate new loan entities for each new lending process.
 
-Using regular `@Component`- or `@Service`-beans comes with two issues on its own:
+The actual 'coordination' is happening in the [LoanHandling](src/main/java/com/example/cqrs/domain/LoanHandling.java)-class, where various @EventHandling-annotated methods are used for dispatching commands to a loan's
+associated reader and book subjects.
 
-- They only exist in memory, thus the reader/book-correlation (realized via fields inside the bean) would be lost in case of an erroneous JVM-shutdown, requiring some further external infrastructure (such as a DB or Redis) for persistence
-- OpenCQRS-Eventhandlers require their parent classes to be singleton beans (Spring's default), whereas saga-beans would have to be instantiated on a per-request basis (i.e. request-scoped).
+---
+**NOTE**
 
-Thus, the approach chosen here is to model saga-coordinators/orchestrators as their own subject alongside the existing domain-entities. In our specific case, we call this new subject-type: `Loan`.
+One might think of using regular `@Component`- or `@Service`-beans as coordinators, since introducing a new write-model subject with its own commands and events (and subsequent handlers) *does* introduce a certain overhead.
+
+However, this approach would not work for two reasons:
+
+- Beans only exist in memory, thus the reader/book-correlation (realized via fields inside the bean) would be lost in case of an erroneous JVM-shutdown, requiring some further external infrastructure (such as a DB or Redis) for persistence
+- @EventHandling-methods require their parent classes to be singleton beans (Spring's default), whereas saga-beans would have to be instantiated on a per-request basis (i.e. request-scoped).
+
+---
 
 ## Happy Paths
 
