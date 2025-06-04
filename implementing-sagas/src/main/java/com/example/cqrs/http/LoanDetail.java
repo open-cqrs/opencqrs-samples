@@ -1,4 +1,4 @@
-package com.example.cqrs.rest;
+package com.example.cqrs.http;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
