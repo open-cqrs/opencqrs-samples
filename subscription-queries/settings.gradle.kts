@@ -1,2 +1,2 @@
 
-rootProject.name = "02-async-queries"
+rootProject.name = "subscription-queries"

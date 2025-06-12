@@ -21,9 +21,7 @@ services:
       - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql
 
   spring-app:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: "ghcr.io/opencqrs/opencqrs-samples-asyncqueries:latest"
     depends_on:
       - postgres
       - esdb

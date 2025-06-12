@@ -1,0 +1,42 @@
+name: Release
+
+on:
+  push:
+    - main
+  workflow_dispatch:
+
+jobs:
+  build-and-push:
+    strategy:
+      matrix:
+        sampleapp:
+          - filtering-event-streams
+          - implementing-sagas
+          - subscription-queries
+        platform:
+          - amd64
+          - arm64
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write # Needed to write into the container registry
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21 # Passen Sie die JDK-Version an Ihr Projekt an
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'gradle' # Oder 'gradle', je nach Build-Tool
+
+      - name: Build and Push Docker Image with Jib
+        working-directory: ${{ matrix.sampleapp }}
+        run: |
+          ./gradlew jib --no-daemon \
+            -Djib.to.auth.username="${{ github.actor }}" \
+            -Djib.to.auth.password="${{ secrets.GITHUB_TOKEN }}" \
+            -Djib.from.platforms.platform.architecture="${{ matrix.platform }}" \
+            -Djib.from.platforms.platform.os="linux"

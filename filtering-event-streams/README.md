@@ -1,4 +1,4 @@
-# Using (Filtered) Event Streams
+# Filtering Event Streams
 
 -----
 
@@ -10,24 +10,26 @@ This tutorial assumes you have completed the official [OpenCQRS-tutorial](https:
 
 Event sourcing commonly faces performance issues in long-lived or highly utilized applications due to extensive event trails. This is especially true when only a few events relate to the entity being sourced.
 
-To address this, EventSourcingDB partitions events into smaller streams based on their [subject](https://docs.eventsourcingdb.io/fundamentals/subjects/). This sample app demonstrates how the OpenCQRS framework uses this feature to model hierarchical relationships between domain entities and source them efficiently.
+To address this, OpenCQRS leverages one of EventSourcingDB's core features: Tagging events with [subjects](https://docs.eventsourcingdb.io/fundamentals/subjects/).
 
-# The Domain
+To summarize, a subject is a string used to associate an event with a specific domain entity. When updating the app's write-model of a given entity, 
+OpenCQRS uses the subject to query *only* events [pertaining to that entity](https://docs.eventsourcingdb.io/getting-started/running-eventql-queries/#filtering-by-subject), greatly reducing the amount of events that have to be processed.
 
-Our sample uses a library domain with the following two entities in its write-model:
+Furthermore, subjects can (and should) have a url-like structure which can be used to express hierarchical relationships between domain entities:
+
+![](diagramms/entity-hierarchy.svg)
+
+Our domain for this app is a library with the following two entities:
 
 - `Book`: Represents a specific work available at the library.
 - `BookCopy`: Represents a physical copy of a book that can be lent to readers.
 
-Each book can have one or more associated copies.
+Here, there is a clear One-to-Many-relationships between books (the creative work) and their physical copies.
 
-This relationship is reflected in subjects such as:
+When event-sourcing the write-model for a book with some `ìsbn`, OpenCQRS will consider only the events whose subjects are or start with `/books/{isbn}`,
+_including_ events tagged with its copies as their subject, i.e. `/books/{isbn}/copy/{id1}`, `/books/{isbn}/copy/{id2}` etc.
 
-```
-/books/123-4567890/copy/XY
-```
-
-When updating the system's write-model for book copy `XY`, the state rebuilding mechanism *only* considers events strictly tagged with the above subject. Other events, such as those pertaining to `/books/123-4567890` in general or any other copies, are ignored.
+When event-sourcing the write-model for a specific book copy with some `id`, *only* events tagged with the subject `/books/{isbn}/copy/{id}` are queried and all others ignored.
 
 ## Commands and Events
 
