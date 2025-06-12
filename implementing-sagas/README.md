@@ -46,7 +46,7 @@ needed at _some_ point be propagated throughout the _entire_ process can not onl
 
 To remedy the issues outlined above, one can utilize a central coordinator (also sometimes referred to as an orchestrator) that sits between/above the involved entities of the saga.
 
-In terms of the OpenCQRS-framework , we realize this by introducing a third type of subject: The [Loan](src/main/java/com/example/cqrs/domain/Loan.java).
+In terms of the OpenCQRS-framework, we realize this by introducing a third type of subject: The [Loan](src/main/java/com/example/cqrs/domain/Loan.java).
 With this, we leverage the event-store for persisting the correlation between a reader's ID and the book's ISBN while at the same time being able to instantiate new loan entities for each new lending process.
 
 The actual 'coordination' is happening in the [LoanHandling](src/main/java/com/example/cqrs/domain/LoanHandling.java)-class, where various @EventHandling-annotated methods are used for dispatching commands to a loan's
