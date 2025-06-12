@@ -1,27 +1,27 @@
+Here's the revised README:
 
-# Using (filtered) event streams
+# Using (Filtered) Event Streams
 
----
+-----
+
 **NOTE**
 
-This tutorial assumes you have at least completed the official [OpenCQRS-tutorial](https://docs.opencqrs.com/tutorials/) beforehand.
+This tutorial assumes you have completed the official [OpenCQRS-tutorial](https://docs.opencqrs.com/tutorials/).
 
----
+-----
 
-A common issue with event-sourcing is that in a long-lived or highly utilized app the event-trail will grow to considerable lengths. This can impact performance when sourcing the state, especially when only few events actually pertain to the entity being sourced.
+Event sourcing commonly faces performance issues in long-lived or highly utilized applications due to extensive event trails. This is especially true when only a few events relate to the entity being sourced.
 
-To remedy this, EventSourcingDB provides the ability to partition events into smaller streams based on their [subject](https://docs.eventsourcingdb.io/fundamentals/subjects/).
-
-This sample app showcases, how the OpenCQRS-framework leverages this feature to both model hierarchical relationships between domain entities and source them efficiently.
+To address this, EventSourcingDB partitions events into smaller streams based on their [subject](https://docs.eventsourcingdb.io/fundamentals/subjects/). This sample app demonstrates how the OpenCQRS framework uses this feature to model hierarchical relationships between domain entities and source them efficiently.
 
 # The Domain
 
-The domain we use in our sample is a library, with the following two entities used in our write-model:
+Our sample uses a library domain with the following two entities in its write-model:
 
-- `Book`: Represents a specific work available at a library
-- `BookCopy`: Represents a physical copy of a Book which can be lent out to readers at the library
+- `Book`: Represents a specific work available at the library.
+- `BookCopy`: Represents a physical copy of a book that can be lent to readers.
 
-Each book can have one or more copies associated with it.
+Each book can have one or more associated copies.
 
 This relationship is reflected in subjects such as:
 
@@ -29,44 +29,42 @@ This relationship is reflected in subjects such as:
 /books/123-4567890/copy/XY
 ```
 
-When updating the system's write-model for book copy `XY`, the state rebuilding mechanism will *only* consider the events tagged strictly with the above subject.
-
-All other events, such as those pertaining to `/books/123-4567890` in general or any other of its copies are ignored.
+When updating the system's write-model for book copy `XY`, the state rebuilding mechanism *only* considers events strictly tagged with the above subject. Other events, such as those pertaining to `/books/123-4567890` in general or any other copies, are ignored.
 
 ## Commands and Events
 
-The 'lifecycle' of a book (copy) in our app looks like this:
+The lifecycle of a book (copy) in our app is depicted below:
 
 ![](diagramms/book-lifecycle.svg)
 
-The commands and events in detail:
+The commands and events are detailed as follows:
 
 ### [PurchaseBookCommand](src/main/java/com/example/cqrs/domain/api/purchasing/PurchaseBookCommand.java)
 
-The Library purchasing a new copy of a given book. The Subject of the command is of the form:
+The library purchases a new copy of a given book. The command's subject is in the format:
 
 ```
 /books/{isbn of book}
 ```
 
-On success, this yields the following Events:
+Upon success, this yields the following events:
 
-- `BookInformationAddedEvent`: An entry containing general information about the book is added to the system, iff. it was not present yet.
-- `BookCopyAddedEvent`: The purchased copy of the book has been added to the library and made available for lending.
+- `BookInformationAddedEvent`: An entry with general book information is added to the system if not already present.
+- `BookCopyAddedEvent`: The purchased book copy is added to the library and made available for lending.
 
 ### [BorrowBookCommand](src/main/java/com/example/cqrs/domain/api/borrowing/LendBookCommand.java) and [ReturnBookCommand](src/main/java/com/example/cqrs/domain/api/returning/ReturnBookCommand.java)
 
-A reader borrowing and eventually returning a given copy of the book. The Subject of the commands is of the form:
+A reader borrows and eventually returns a specific copy of a book. The commands' subject is in the format:
 
 ```
 /books/{isbn of book}/copies/{id of copy}
 ```
 
-On success, they yield a `BookCopyLentEvent` and a `BookCopyReturnedEvent`, respectively
+Upon success, they yield a `BookCopyLentEvent` and a `BookCopyReturnedEvent`, respectively.
 
-# Running the app
+# Running the App
 
-To run the app, make sure you have [Docker](https://www.docker.com/) installed on your system.
+To run the app, ensure you have [Docker](https://www.docker.com/) installed on your system.
 
 Then run:
 
@@ -74,9 +72,9 @@ Then run:
 docker-compose up
 ```
 
-This will boot up
+This command will start:
 
-- an instance of the EventSourcingDB
-- an instance of the app itself
+- An instance of EventSourcingDB.
+- An instance of the app itself.
 
-To interact with the app, we provide a [collection](clients) of requests for [Postman](https://www.postman.com/) and [Bruno](https://www.usebruno.com/) API clients.
+To interact with the app, we provide a [collection](clients) of requests for the [Postman](https://www.postman.com/) and [Bruno](https://www.usebruno.com/) API clients.
