@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * This class is wrapper for {@link com.opencqrs.framework.command.CommandRouter} and can be used in its stead.
+ * This class acts as a wrapper for {@link com.opencqrs.framework.command.CommandRouter} and cmay be used as a substitute.
  * It provides additional methods for sending commands and then waiting for said commands to be processed asynchronously
  */
 @Service
