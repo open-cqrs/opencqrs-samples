@@ -4,7 +4,7 @@
 ---
 **NOTE**
 
-This tutorial assumes you have at least completed the official [OpenCQRS-tutorial](https://docs.opencqrs.com/tutorials/) beforehand.
+This tutorial assumes you have already completed the official [OpenCQRS-tutorial](https://docs.opencqrs.com/tutorials/).
 
 ---
 
