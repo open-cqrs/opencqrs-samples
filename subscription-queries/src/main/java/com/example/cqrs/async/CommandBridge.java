@@ -42,7 +42,7 @@ public class CommandBridge {
 
     /**
      *
-     * Sends a command and waits for subsequent events having been processed for a specified group
+     * Sends a command and waits for subsequent events having been processed for a specified group.
      *
      * @param command the command to be sent to the system
      * @param group the event-handling group for which to wait for callback from
