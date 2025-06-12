@@ -1,5 +1,3 @@
-Here's the revised README:
-
 # Using (Filtered) Event Streams
 
 -----
