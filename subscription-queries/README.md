@@ -1,47 +1,48 @@
-
 # Subscribing to Queries
 
----
+-----
+
 **NOTE**
 
 This tutorial assumes you have at least completed the official [OpenCQRS-tutorial](https://docs.opencqrs.com/tutorials/) beforehand.
 
----
+-----
 
-One of the consequences of implementing the CQRS pattern is asynchronicity between writes/commands and reads/queries. 
-This can become an issue when one wants to ensure that a given query result fully reflects the most recent command's effects.
+A consequence of implementing the CQRS pattern is the asynchronicity between writes (commands) and reads (queries).
+This can be an issue when you need a query result to fully reflect the most recent command's effects.
 
-The purpose of this app is to showcase how one can synchronize queries and commands again.
+This app demonstrates how to re-synchronize queries and commands.
 
-The app itself is a simple library app based around two domain entities:
+The app is a simple library system with two domain entities:
 
-- Readers
-- Books
+* Readers
+* Books
 
-The actions one can perform are:
+You can perform the following actions:
 
-- Registering a reader, via the ``RegisterReaderCommand``
-- Purchasing a book, via the ``PurchaseBookCommand``
-- Lending and returning a book to/from a reader, via the ``LendBookCommand`` and ``ReturnBookCommand``, respectively
+* Register a reader using the `RegisterReaderCommand`.
+* Purchase a book using the `PurchaseBookCommand`.
+* Lend and return a book to/from a reader using the `LendBookCommand` and `ReturnBookCommand`, respectively.
 
 # The Problem
 
-First, we should have a basic idea of the message and data flows in a standard Open CQRS-app:
+First, let's understand the basic message and data flow in a standard OpenCQRS app:
 
-![Single-JVM-Setup](diagrams/Single-JVM-Setup.svg)
+A client calls one of the app's endpoints **(1)**, which then issues a command to the command router **(2)**.
+The command router passes the command to the appropriate command handler **(3)**, which writes one or more events to the event store **(4)**.
+One or more event handlers **(5)** can then pick up each event and execute the relevant logic.
+A special type of event handler, called a *projector*, updates the app's read-model by persisting an updated view to the read-optimized database **(6a)**.
+The app's controllers **(7)** can then use this database to allow the client to query data through additional endpoints **(8)**.
 
-First, a client makes a call to one of the app's endpoints **(1)**, which in turn causes it to issue a command to the command router **(2)**.
-The command router then passes said command to the appropriate command handler **(3)**, which (among other things) writes one or more events to the event store **(4)**.
-Each event may then be picked up by one or more event handlers **(5)**, which then execute the appropriate logic. A special case of such event handlers, called a _projector_,
-updates the app's read-model by persisting an updated view to the (read-optimised) database **(6a)**. 
-Said database can then be used by the app's controllers **(7)** to allow the client to query data through additional endpoints **(8)**.
+![](diagrams/Single-JVM-Setup.svg)
 
-The issue here is, that the message/data-flow *leaves* the confines of the app's JVM after publishing the events and then *reenters* them only once they are handled.
-This means, that the initial thread issuing the command terminates immediately after it is handled, while the handling of the corresponding events is done in separate threads.
-That way, the client can not know whether the data from the latest query they performed already incorporates the changes caused by their last command.
+The problem here is that the message/data flow *leaves* the app's JVM after publishing events and *re-enters* only when events are handled.
+This means the initial thread issuing the command terminates immediately after handling, while corresponding events are handled in separate threads.
+Thus, the client can't know if the data from their latest query already incorporates changes from their last command.
 
-In a simple scenario where the client is only interacting with a single instance of the app, this issue can be resolved by syncing up writing and reading at the controller-level
-and have the thread that received the request wait for the thread doing the projection **(6b)** and _then_ return the resulting view to the client as a response:
+In a simple scenario with a single app instance, this can be resolved by synchronizing writing and reading at the controller level.
+The request-receiving thread waits for the projection thread **(6b)** and *then* returns the resulting view to the client as a response:
+
 ```java
 @Service
 public class SynchronizerService {
@@ -59,24 +60,28 @@ public class SynchronizerService {
     }
 }
 ```
-We ensure that a given read-model update corresponds to a given command by routing a command with a *correlation id* inside its metadata, which will be consequently passed inside the metadata of the *latest* event published by the command handler.
 
-However, this breaks down in a more realistic, industry-grade setup where multiple instances of the app are running in parallel (usually containerized) and reverse-proxied by a load balancer (or something similar):
+We ensure a read-model update corresponds to a command by routing the command with a *correlation ID* in its metadata.
+This ID is then passed in the metadata of the *latest* event published by the command handler.
 
-![Multi-JVM-Setup v2](diagrams/Multi-JVM-Setup.v2.svg)
+However, this breaks down in a more realistic, industry-grade setup where multiple app instances run in parallel (usually containerized)
+and are reverse-proxied by a load balancer:
 
-Here, not only will the event handling be done by a different thread than the command handling, but it also might be done on a completely different JVM.
+![](diagrams/Multi-JVM-Setup.v2.svg)
 
-To solve the problem in this scenario, once can modify the single-jvm approach by instead of waiting for an update from another thread (which might never come), have the controller listen for updates from the database *directly*.
+Here, event handling isn't just done by a different thread than command handling; it might also occur on a completely different JVM.
+
+To solve this in a multi-JVM scenario, you can modify the single-JVM approach. Instead of waiting for an update from another thread (which might never come),
+have the controller listen for updates *directly* from the database.
 
 # One Solution
 
-The solution exemplified by this app is built on two pillars:
+The solution this app exemplifies has two main components:
 
-- Using Postgres as our read-model database and leveraging its [NOTIFY-feature](https://www.postgresql.org/docs/current/sql-notify.html)
-- Using Spring Integration's [JdbcChannelMessageStore-API](https://docs.spring.io/spring-integration/reference/jdbc/message-store.html) to listen to said notifications
+* Using Postgres as our read-model database and leveraging its [NOTIFY feature](https://www.postgresql.org/docs/current/sql-notify.html).
+* Using Spring Integration's [JdbcChannelMessageStore-API](https://docs.spring.io/spring-integration/reference/jdbc/message-store.html) to listen for notifications.
 
-First, we set up a [configuration](src/main/java/com/example/cqrs/configuration/CqrsConfiguration.java) in which we first ensure, that only one JVM ever gets to handle a given event:
+First, we set up a [configuration](src/main/java/com/example/cqrs/configuration/CqrsConfiguration.java) to ensure only one JVM handles a given event:
 
 ```java
     @Bean
@@ -93,7 +98,7 @@ First, we set up a [configuration](src/main/java/com/example/cqrs/configuration/
     }
 ```
 
-Next, we configure a subscribable channels to listen for the database-notifications as per the [documentation](https://docs.spring.io/spring-integration/reference/jdbc/message-store.html#postgresql-push):
+Next, we configure subscribable channels to listen for database notifications as per the [documentation](https://docs.spring.io/spring-integration/reference/jdbc/message-store.html#postgresql-push):
 
 ```java
     @Bean
@@ -120,41 +125,41 @@ Next, we configure a subscribable channels to listen for the database-notificati
     }
 ```
 
-Once all this is done, we need a [sql file](schema.sql) which initializes the postgres to work with the aforementioned mechanisms.
+After this setup, you need a [SQL file](schema.sql) to initialize Postgres to work with the mechanisms mentioned above.
 
-The final piece connecting our CQRS-logic with the notification infrastructure is the [CommandBridge](src/main/java/com/example/cqrs/async/CommandBridge.java).
-It is essentially a wrapper around OpenCQRS' [CommandRouter](https://github.com/open-cqrs/opencqrs/blob/main/framework/src/main/java/com/opencqrs/framework/command/CommandRouter.java)
-and combines it with the `SubscribableChannel`-Bean configured above and can be used in the router's stead.
+The final piece connecting our CQRS logic with the notification infrastructure is the [CommandBridge](src/main/java/com/example/cqrs/async/CommandBridge.java).
+It's essentially a wrapper around OpenCQRS' [CommandRouter](https://github.com/open-cqrs/opencqrs/blob/main/framework/src/main/java/com/opencqrs/framework/command/CommandRouter.java)
+that combines it with the `SubscribableChannel` Bean configured earlier and can be used in the router's place.
 
-It adds two additional modes of issuing commands:
+It adds two ways to issue commands:
 
-- [sendWaitingForEventsHandled](src/main/java/com/example/cqrs/async/CommandBridge.java#L54): Halt execution of the primary (i.e. command-issuing) thread until notification is received; Resume execution afterwards.
-- [sendThenExecute](src/main/java/com/example/cqrs/async/CommandBridge.java#L103): Halt execution of the primary (i.e. command-issuing) thread until notification is received; Then execute the passed `Runnable` and then resume execution
+* [sendWaitingForEventsHandled](src/main/java/com/example/cqrs/async/CommandBridge.java#L54): Halts the primary (command-issuing) thread until a notification is received, then resumes execution.
+* [sendThenExecute](src/main/java/com/example/cqrs/async/CommandBridge.java#L103): Halts the primary (command-issuing) thread until a notification is received, then executes the passed `Runnable`, and then resumes execution.
 
-The first one is used in the [ReaderController](src/main/java/com/example/cqrs/rest/ReaderController.java#L31) in order to halt execution and only return the new reader's ID once the command has been properly processed.
+The first method is used in the [ReaderController](src/main/java/com/example/cqrs/rest/ReaderController.java#L31)
+to halt execution and return the new reader's ID only after the command has been processed.
 
-The second one is used to implement a more sophisticated logic while [lending](src/main/java/com/example/cqrs/rest/BookController.java#37) and [returning](src/main/java/com/example/cqrs/rest/BookController.java#58) books,
-where [Server-sent Events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events) are returned to the client with an updated view of their lent-out books as soon as a notification is received from the [ReaderProjector](src/main/java/com/example/cqrs/domain/ReaderProjector.java)
+The second method implements more sophisticated logic when [lending](src/main/java/com/example/cqrs/rest/BookController.java#L37)
+and [returning](src/main/java/com/example/cqrs/rest/BookController.java#L58) books.
+In these cases, [Server-sent Events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events) are returned to the client with an updated view of their lent-out books as soon as the [ReaderProjector](src/main/java/com/example/cqrs/domain/ReaderProjector.java) sends a notification.
 
-In both cases, if no notification is received within a given time window (5 seconds), the method times out and excepts with a `InterruptedException`.
+In both cases, if no notification is received within 5 seconds, the method times out and throws an `InterruptedException`.
 
 # Running it
 
-To be able to run this app in a multi-jvm setup, one needs [Docker](https://www.docker.com/products/docker-desktop/) on their system.
-Once installed, perform the following steps:
+To run this app in a multi-JVM setup, you need [Docker](https://www.docker.com/products/docker-desktop/) installed on your system. Once installed, follow these steps:
 
-1. Create a runnable JAR with ``./gradlew bootJar`` (if not done already)
-2. Start the app with ``docker-compose up``
+1.  Create a runnable JAR with `./gradlew bootJar` (if not already done).
+2.  Start the app with `docker-compose up`.
 
-This will
+This will:
 
-1. Create an instance of the database and event store resp., including volumes and port mappings
-2. Boot up multiple instances of the app to run in parallel
-3. Create an nginx reverse-proxy for the instances, available under http://localhost:8080
+1.  Create database and event store instances, including volumes and port mappings.
+2.  Boot up multiple app instances to run in parallel.
+3.  Create an Nginx reverse-proxy for the instances, available at http://localhost:8080.
 
-You can now issue commands via HTTP and see the updated read-model as a response!
+You can now issue commands via HTTP and see the updated read-model in the response\!
 
-For convenience, this repository provides a pre-made [collection](postman/OpenCQRS%20-%20Sample%2002.postman_collection.json) and [environment](postman/OpenCQRS%20-%20Sample%2002.postman_environment.json)
-for use in [Postman](https://www.postman.com/downloads/).
+For convenience, this repository provides a pre-made [collection](postman/OpenCQRS - Sample 02.postman_collection.json) and [environment](postman/OpenCQRS - Sample 02.postman_environment.json) for use in [Postman](https://www.postman.com/downloads/).
 
-The requests inside the collection each correspond to one of the commands mentioned in the [introduction](#introduction).
+Each request in the collection corresponds to one of the commands mentioned in the [introduction](#subscribing-to-queries).
