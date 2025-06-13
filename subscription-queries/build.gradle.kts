@@ -26,7 +26,7 @@ dependencies {
     implementation("com.opencqrs:framework-spring-boot-starter:1.0-rc1")
     testImplementation("com.opencqrs:framework-test:1.0-rc1")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.mockito:mockito-core:2.1.0")
+    testImplementation("org.mockito:mockito-core:5.18.0")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
