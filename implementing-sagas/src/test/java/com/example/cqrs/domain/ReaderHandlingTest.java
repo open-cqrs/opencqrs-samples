@@ -10,6 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.UUID;
 
+/**
+ * @see <a href="https://docs.opencqrs.com/tutorials/06_testing/">Tutorial on testing in OpenCQRS</a>
+ */
 @CommandHandlingTest
 public class ReaderHandlingTest {
 

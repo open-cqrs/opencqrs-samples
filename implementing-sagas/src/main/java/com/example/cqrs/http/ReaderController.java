@@ -1,6 +1,6 @@
-package com.example.cqrs.rest;
+package com.example.cqrs.http;
 
-import com.example.cqrs.domain.api.rental.StartLoanCommand;
+import com.example.cqrs.domain.api.registration.RegisterReaderCommand;
 import com.opencqrs.framework.command.CommandRouter;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -10,25 +10,28 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/loans")
-public class LoanController {
+@RequestMapping("/readers")
+public class ReaderController {
 
     private final CommandRouter router;
 
-    public LoanController(CommandRouter router) {
+    public ReaderController(CommandRouter router) {
         this.router = router;
     }
 
     @PostMapping
-    public void loanBook(@RequestBody LoanDetail detail) {
+    public String registerReader(@RequestBody ReaderDetail detail) {
+
         var id = UUID.randomUUID();
+
         router.send(
-                new StartLoanCommand(
+                new RegisterReaderCommand(
                         id,
-                        detail.readerId(),
-                        detail.isbn()
+                        detail.firstName(),
+                        detail.lastName()
                 )
         );
-    }
 
+        return id.toString();
+    }
 }

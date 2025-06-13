@@ -1,0 +1,99 @@
+{
+  "name": "sample-app-sagas",
+  "version": "1",
+  "items": [
+    {
+      "type": "http",
+      "name": "Register Reader",
+      "filename": "Register Reader.bru",
+      "seq": 1,
+      "request": {
+        "url": "http://localhost:8080/readers",
+        "method": "POST",
+        "headers": [],
+        "params": [],
+        "body": {
+          "mode": "json",
+          "json": "{\n    \"firstName\" : \"John\",\n    \"lastName\" : \"Doe\"\n}",
+          "formUrlEncoded": [],
+          "multipartForm": [],
+          "file": []
+        },
+        "script": {},
+        "vars": {},
+        "assertions": [],
+        "tests": "",
+        "docs": "",
+        "auth": {
+          "mode": "inherit"
+        }
+      }
+    },
+    {
+      "type": "http",
+      "name": "Purchase Book",
+      "filename": "Purchase Book.bru",
+      "seq": 2,
+      "request": {
+        "url": "http://localhost:8080/books/purchase",
+        "method": "POST",
+        "headers": [],
+        "params": [],
+        "body": {
+          "mode": "json",
+          "json": "{\n    \"isbn\": \"012-3456789101\",\n    \"title\": \"Some Book\",\n    \"author\": \"Some Author\"\n}",
+          "formUrlEncoded": [],
+          "multipartForm": [],
+          "file": []
+        },
+        "script": {},
+        "vars": {},
+        "assertions": [],
+        "tests": "",
+        "docs": "",
+        "auth": {
+          "mode": "inherit"
+        }
+      }
+    },
+    {
+      "type": "http",
+      "name": "Lend Book",
+      "filename": "Lend Book.bru",
+      "seq": 3,
+      "request": {
+        "url": "http://localhost:8080/loans",
+        "method": "POST",
+        "headers": [],
+        "params": [],
+        "body": {
+          "mode": "json",
+          "json": "{\n    \"id\": \"{{id}}\",\n    \"isbn\": \"{{isbn}}\"\n}",
+          "formUrlEncoded": [],
+          "multipartForm": [],
+          "file": []
+        },
+        "script": {},
+        "vars": {},
+        "assertions": [],
+        "tests": "",
+        "docs": "",
+        "auth": {
+          "mode": "inherit"
+        }
+      }
+    }
+  ],
+  "environments": [],
+  "brunoConfig": {
+    "version": "1",
+    "name": "sample-app-sagas",
+    "type": "collection",
+    "ignore": [
+      "node_modules",
+      ".git"
+    ],
+    "size": 0,
+    "filesCount": 0
+  }
+}

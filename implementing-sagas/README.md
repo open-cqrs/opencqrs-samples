@@ -1,85 +1,99 @@
+# Implementing Sagas
 
-# Introduction
+-----
 
-A common requirement occurring in distributed systems is the need to validate a request against a multitude of different services instead of just one.
+**NOTE**
 
-Such long-running, multi-system transactions are commonly referred to as _Sagas_, and in the context of CQRS+ES, they take the form of commands whose validation crosses the boundaries of multiple subjects.
+This tutorial assumes you have completed the official [OpenCQRS-tutorial](https://docs.opencqrs.com/tutorials/).
 
-The purpose of this app is to give an example of how to model such a transaction using the OpenCQRS-framework.
+-----
+
+Distributed systems often need to validate a request against multiple services, not just one.
+
+These long-running, multi-system transactions are known as **Sagas**. In a CQRS+ES context, sagas involve commands whose validation spans multiple subjects.
+
+This app demonstrates how to model such a transaction using the OpenCQRS framework.
 
 # Motivation
 
-Our domain is a library, where we have two principal entities:
+Consider a library domain with two main entities:
 
-- Readers (identified by an ID)
-- Books (identified by their ISBN)
+* **Readers** (identified by an ID)
+* **Books** (identified by their ISBN)
 
-We now want to implement the process of a reader lending a book with two constraints:
+We want to implement a book lending process with two constraints:
 
-- A reader can at any time have at most two books lent out to them
-- A book can only be lent out to exactly one reader
+* A reader can have a maximum of two books lent at any time.
+* A book can be lent to only one reader at a time.
 
-The first has to be validated against the write-model of the reader, the second one against the write-model of the book.
+The first constraint requires validation against the reader's write-model, while the second requires validation against the book's write-model.
 
-A naive implementation without a dedicated 'coordinator', i.e. with the involved entities simply exchanging messages between each other, could look something like this:
+A naive implementation, where entities exchange messages without a dedicated coordinator, might look like this:
 
 ![](diagrams/naive-solution.svg)
 
-Here, we annotated each command and event with the entity information available and needed to successfully process them. And through this, we instantly see the problem with this approach:
+Each command and event is annotated with the necessary entity information. This highlights a problem:
 
-When trying to send back a `Receive Book`-command for the reader lending the book, we need their ID. However, since the book's `Reserve Book`-command does _not_ have the reader ID available (since there is no reason for it to from a business-logic perspective) this information is missing now (thus marked red).
+To send a `Receive Book` command for the reader lending the book, we need the reader's ID. However, the book's `Reserve Book` command does not have the reader ID (as there's no business logic reason for it), so this information is missing (marked red).
 
-Technically, this problem can be easily solved by just propagating the reader ID through the entire workflow, i.e. also providing it to `Reserve Book` and its subsequent event, 
-but that would explicitly couple the book's domain-logic with the reader's for purely technical reasons.
+Theoretically, propagating the reader ID throughout the workflow (i.e., providing it to `Reserve Book` and its subsequent event) would solve this. However, this couples the book's domain logic with the reader's for purely technical reasons.
 
-For such a simple domain and use case, this might not seem like a big issue but once one has to implement more sophisticated transactions involving more entities or subjects, having _all_ information that may be
-needed at _some_ point be propagated throughout the _entire_ process can not only become unwieldy, it compromises one of the key concepts of Domain-Driven Design: Having clear, well-defined boundaries between a domain's contexts and the entities within them.
+For a simple domain and use case, this might seem minor. But in more complex transactions involving a multitude of entities or subjects, propagating *all* potentially needed information throughout the *entire* process becomes unwieldy. It also compromises a key Domain-Driven Design principle: maintaining clear, well-defined boundaries between a domain's contexts and its entities.
 
 # Sagas in (Open)CQRS
 
-To remedy the issues outlined above, one can utilize a central coordinator (also sometimes referred to as an orchestrator) that sits between/above the involved entities of the saga.
+To address these issues, use a central **coordinator** (or orchestrator) that sits between or above the saga's involved entities.
 
-In terms of the OpenCQRS-framework , this would be a bean being instantiated for each individual lending process which both persists the correlation between the reader (ID) and book (ISBN) in question,
-while using `@EventHandling`-annotated methods to listen to events pertaining to one subject to the issue commands to the other.
+In the OpenCQRS framework, we achieve this by introducing a third subject type: the [Loan](src/main/java/com/example/cqrs/domain/Loan.java).
+This leverages the event store to persist the correlation between a reader's ID and a book's ISBN, while allowing new loan entities to be instantiated for each lending process.
 
-Using regular `@Component`- or `@Service`-beans comes with two issues on its own:
+The actual coordination happens in the [LoanHandling](src/main/java/com/example/cqrs/domain/LoanHandling.java) class, where various `@EventHandling`-annotated methods dispatch commands to a loan's associated reader and book subjects.
 
-- They only exist in memory, thus the reader/book-correlation (realized via fields inside the bean) would be lost in case of an erroneous JVM-shutdown, requiring some further external infrastructure (such as a DB or Redis) for persistence
-- OpenCQRS-Eventhandlers require their parent classes to be singleton beans (Spring's default), whereas saga-beans would have to be instantiated on a per-request basis (i.e. request-scoped).
+-----
 
-Thus, the approach chosen here is to model saga-coordinators/orchestrators as their own subject alongside the existing domain-entities. In our specific case, we call this new subject-type: `Loan`.
+**NOTE**
+
+One might consider using regular `@Component` or `@Service` beans as coordinators, as introducing a new write-model subject with its own commands and events (and subsequent handlers) adds some overhead.
+
+However, this approach wouldn't work for two reasons:
+
+* Beans exist only in memory. Reader/book correlation (via fields in the bean) would be lost in case of a JVM shutdown, requiring external infrastructure (like a DB or Redis) for persistence.
+* `@EventHandling` methods require their parent classes to be singleton beans (Spring's default), whereas saga beans would need to be instantiated per-request (i.e., request-scoped).
+
+-----
 
 ## Happy Paths
 
-In the case of a successful loan, with no errors happening, our saga will look like this:
+In a successful loan scenario, with no errors, our saga will look like this:
 
 ![](diagrams/happy-path-reader.svg)
 
-- We start with an initializing command which creates the loan subject-instance for the given reader-ID/book-ISBN combination.
-- The corresponding event is handled by issuing the appropriate command under the reader's subject
-- The command is validated (reader hasn't reached their limit of lent books), the reader's write-model, it's corresponding event is fired and the reader's write-model updated with a reference to the loan
-- Said event is handled by issuing a command back under the loan's subject, which kicks of the saga's validation on the book's side:
+* The process begins with an initializing command that creates the loan subject instance for the given reader ID and book ISBN.
+* The corresponding event is handled by issuing the appropriate command under the reader's subject.
+* The command is validated (e.g., the reader hasn't reached their book limit), the reader's write-model is updated, its corresponding event is fired, and the reader's write-model is updated with a reference to the loan.
+* This event is then handled by issuing a command back under the loan's subject, initiating the saga's validation on the book's side:
 
 ![](diagrams/happy-path-book.svg)
 
-The logic is basically identical to the reader's side of the transaction, with the book's write-model also being updated with a reference to its new, currently active loan.
+The logic is essentially identical to the reader's side of the transaction, with the book's write-model also being updated with a reference to its new, currently active loan.
 
 ## Error Paths
 
-Naturally, commands can also be rejected and the lending process fail as a consequence.
+Commands can be rejected, causing the lending process to fail.
 
-For these cases, we also have to think about how to roll back the 'dirty' state of our system from the midst of an ongoing transaction to a clean one, ready for new commands.
+In such cases, we must also consider how to roll back the system's "dirty" state from an ongoing transaction to a clean state, ready for new commands.
 
-If the command handler of the reader's `Add Loan`-command rejects (signified by return value `false`), due to an already reached limit of active loans, the rollback is straight-forward since no state-changing events have been fired yet.
-Simply issue a `Cancel Loan`-command and be done:
+If the reader's `Add Loan` command handler rejects (returns `false`) due to an already reached limit of active loans, 
+the rollback is straightforward since no state-changing events have been fired yet. Simply issue a `Cancel Loan` command:
 
 ![](diagrams/error-path-reader.svg)
 
-Things are more complicated, if the book's `Reserve Book`-command rejects, because the book in question is already being reserved by another active loan: At this point in the transaction, the reader's write-model has already been updated
-with a reference to the loan being processed via the `Loan Added`-event. Said event must now be _compensated_, before cancelling the lending process altogether:
+Things are more complicated if the book's `Reserve Book` command rejects because the book is already reserved by another active loan. 
+At this point, the reader's write-model has already been updated with a reference to the loan being processed via the `Loan Added` event. 
+This event must now be **compensated** before canceling the lending process entirely:
 
 ![](diagrams/error-path-book-1.svg)
 
 ![](diagrams/error-path-book-2.svg)
 
-In each case, the transaction ends in a clean state where both subject's constraints are preserved.
+In each case, the transaction ends in a clean state where both subjects' constraints are preserved.

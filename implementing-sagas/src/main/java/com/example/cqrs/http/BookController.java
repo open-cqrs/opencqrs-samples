@@ -1,4 +1,4 @@
-package com.example.cqrs.rest;
+package com.example.cqrs.http;
 
 import com.example.cqrs.domain.api.purchase.PurchaseBookCommand;
 import com.opencqrs.framework.command.CommandRouter;
