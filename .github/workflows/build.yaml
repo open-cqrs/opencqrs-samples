@@ -1,0 +1,32 @@
+name: Build
+
+on:
+  push:
+    branches-ignore:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        sampleapp:
+          - filtering-event-streams
+          - implementing-sagas
+          - subscription-queries
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'gradle'
+
+      - name: Build Docker Image with Jib
+        working-directory: ${{ matrix.sampleapp }}
+        run: |
+          ./gradlew jibBuildTar --no-daemon

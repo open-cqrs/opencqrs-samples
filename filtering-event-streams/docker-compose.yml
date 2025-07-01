@@ -11,9 +11,7 @@ services:
 
 
   spring-app:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: "ghcr.io/opencqrs/opencqrs-samples-eventstreams:latest"
     depends_on:
       - esdb
     environment:

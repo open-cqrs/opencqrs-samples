@@ -1,0 +1,22 @@
+services:
+  esdb:
+    image: docker.io/thenativeweb/eventsourcingdb:1.0.2
+    volumes:
+      - event-data:/var/lib/esdb
+    command: "run --api-token secret --data-directory /var/lib/esdb --http-enabled=true --https-enabled=false --with-ui"
+    ports:
+      - "3000:3000"
+
+
+  spring-app:
+    image: "ghcr.io/opencqrs/opencqrs-samples-sagas:latest"
+    depends_on:
+      - esdb
+    environment:
+      ESDB_SERVER_URI: http://esdb:3000
+      ESDB_SERVER_API_TOKEN: secret
+    ports:
+      - "8080:8080"
+
+volumes:
+  event-data:

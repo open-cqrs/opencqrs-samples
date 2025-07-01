@@ -13,18 +13,7 @@ This can be an issue when you need a query result to fully reflect the most rece
 
 This app demonstrates how to re-synchronize queries and commands.
 
-The app is a simple library system with two domain entities:
-
-* Readers
-* Books
-
-You can perform the following actions:
-
-* Register a reader using the `RegisterReaderCommand`.
-* Purchase a book using the `PurchaseBookCommand`.
-* Lend and return a book to/from a reader using the `LendBookCommand` and `ReturnBookCommand`, respectively.
-
-# The Problem
+## The problem
 
 First, let's understand the basic message and data flow in a standard OpenCQRS app:
 
@@ -74,7 +63,7 @@ Here, event handling isn't just done by a different thread than command handling
 To solve this in a multi-JVM scenario, you can modify the single-JVM approach. Instead of waiting for an update from another thread (which might never come),
 have the controller listen for updates *directly* from the database.
 
-# One Solution
+## One possible solution
 
 The solution this app exemplifies has two main components:
 
@@ -136,16 +125,28 @@ It adds two ways to issue commands:
 * [sendWaitingForEventsHandled](src/main/java/com/example/cqrs/async/CommandBridge.java#L54): Halts the primary (command-issuing) thread until a notification is received, then resumes execution.
 * [sendThenExecute](src/main/java/com/example/cqrs/async/CommandBridge.java#L103): Halts the primary (command-issuing) thread until a notification is received, then executes the passed `Runnable`, and then resumes execution.
 
-The first method is used in the [ReaderController](src/main/java/com/example/cqrs/rest/ReaderController.java#L31)
-to halt execution and return the new reader's ID only after the command has been processed.
+In both methods, if no notification is received within 5 seconds, the method times out and throws an `InterruptedException`.
 
-The second method implements more sophisticated logic when [lending](src/main/java/com/example/cqrs/rest/BookController.java#L37)
-and [returning](src/main/java/com/example/cqrs/rest/BookController.java#L58) books.
-In these cases, [Server-sent Events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events) are returned to the client with an updated view of their lent-out books as soon as the [ReaderProjector](src/main/java/com/example/cqrs/domain/ReaderProjector.java) sends a notification.
+## The app itself
 
-In both cases, if no notification is received within 5 seconds, the method times out and throws an `InterruptedException`.
+This sample app is a simple library system with two domain entities:
 
-# Running it
+* Readers
+* Books
+
+You can perform the following actions:
+
+* Register a reader using the `RegisterReaderCommand`.
+* Purchase a book using the `PurchaseBookCommand`.
+* Lend and return a book to/from a reader using the `LendBookCommand` and `ReturnBookCommand`, respectively.
+
+Of particular interest are the `/readers`, `/books/lend` and `/books/return` endpoints. 
+
+The first one [halts execution](src/main/java/com/example/cqrs/rest/ReaderController.java#L31) of the thread dispatching the `RegisterReaderCommand` and returns the new reader's ID only after it has been processed by the system.
+
+The latter two open up [SSE-connections](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events) with the client, directly [returning the updated result](src/main/java/com/example/cqrs/rest/BookController.java#L37) of the [Books-lent-projection](src/main/java/com/example/cqrs/domain/ReaderProjector.java) and immediately closing the connection afterwards.
+
+## Running it
 
 To run this app in a multi-JVM setup, you need [Docker](https://www.docker.com/products/docker-desktop/) installed on your system. Once installed, follow these steps:
 

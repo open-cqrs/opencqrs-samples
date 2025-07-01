@@ -1,2 +1,2 @@
 
-rootProject.name = "03-sagas"
+rootProject.name = "implementing-sagas"
