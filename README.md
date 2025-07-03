@@ -1,15 +1,67 @@
+# OpenCQRS – Sample Applications
 
-# OpenCQRS - Sample Apps
+<!-- BADGES_START -->
+[![Java](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fopen-cqrs%2Fopencqrs%2Frefs%2Fheads%2Fgh-pages%2Fbadges%2Fjdk.json)](https://openjdk.org)
+[![EventSourcingDB](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fopen-cqrs%2Fopencqrs%2Frefs%2Fheads%2Fgh-pages%2Fbadges%2Fesdb.json)](https://www.eventsourcingdb.io)
+[![Spring Boot](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fopen-cqrs%2Fopencqrs%2Frefs%2Fheads%2Fgh-pages%2Fbadges%2Fspring.json)](https://spring.io/projects/spring-boot)
+<!-- BADGES_END -->
 
-The repository is a collection of sample apps each showcasing how to implement a solution to a specific problem or use case one could encounter while developing
-software with the [OpenCQRS-framework](https://www.opencqrs.com).
+![OpenCQRS](banner.png)
 
-So far this includes:
 
-- Using structured Command-subjects to filter the event trail [(see)](using-event-streams)
-- Subscribing/Waiting for new query results after dispatching a command [(see)](subscription-queries)
-- Implementing long-lived and distributed transactions aka. sagas [(see)](implementing-sagas)
+This repository contains a collection of sample applications. Each sample demonstrates how to implement a specific use case commonly encountered when developing software with the [OpenCQRS framework](https://www.opencqrs.com).
 
-Each sample app can be run locally via `docker-compose` (see the corresponding `docker-compose.yml` files) and interacted with via the provided Postman and Bruno API-collections.
 
-See each app's individual READEME for more details.
+## About OpenCQRS and EventSourcingDB
+
+### OpenCQRS
+
+[**OpenCQRS**](https://github.com/open-cqrs/opencqrs) is an innovative, opinionated and light-weight framework for the developing applications based on **CQRS (Command Query Responsibility Segregation)** and **Event Sourcing**.  
+
+It provides the means to implement modern architecture patterns like hexagonal architecturs quite easily and with comprehensive sample apps that allow first experiments with CQRS/ES in a matter of minutes.
+
+### EventSourcingDB
+
+[**EventSourcingDB**](https://www.eventsourcingdb.io) is the database that adapts to your business processes like never before. It captures the semantics of your domain events and builds the perfect foundation for your event-driven architecture to take your business to the next level.
+
+## Why OpenCQRS?
+
+We’ve worked with CQRS and Event Sourcing for years – and none of the existing Java frameworks gave us what we needed:
+
+    They were either too heavy, too leaky in abstraction, or lacked clear guidance for beginners.
+
+    When EventSourcingDB emerged, we finally had the foundation we needed to build the framework we always wished had existed.
+
+OpenCQRS is that framework.
+Simple enough to get started in minutes. Powerful enough to grow with your system.
+
+## Included Samples
+
+The following scenarios are covered:
+
+- **Filtering Event Streams**  
+  Demonstrates how to tag events to efficiently filter the event stream.  
+  → [View sample](./using-event-streams)
+
+- **Subscribing to Queriess**  
+  Shows how to wait for read-side projections to reflect the outcome of a command using polling or reactive subscriptions.  
+  → [View sample](./subscription-queries)
+
+- **Implementing Sagas**  
+  Explains how to coordinate workflows across long-running, multi-system transactions are known as **Sagas**.  
+  → [View sample](./implementing-sagas)
+
+Each sample application can be run locally via `docker-compose` (see the corresponding `docker-compose.yml` files). Interaction is possible using the included Postman and Bruno API collections.
+
+Refer to each app’s individual `README.md` for detailed instructions.
+
+
+## Requirements
+
+To run the samples locally, ensure the following tools are installed:
+
+- Java 17+
+- Docker
+- Docker Compose
+
+> ℹ️ *EventSourcingDB runs as a container via the provided `docker-compose.yml` files.*
