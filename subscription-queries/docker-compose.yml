@@ -1,0 +1,51 @@
+services:
+  esdb:
+    image: docker.io/thenativeweb/eventsourcingdb:latest
+    volumes:
+      - event-data:/var/lib/esdb
+    command: "run --api-token secret --data-directory /var/lib/esdb --http-enabled=true --https-enabled=false --with-ui"
+    ports:
+      - "3000:3000"
+
+  postgres:
+    image: postgres:17.1
+    environment:
+      POSTGRES_DB: mydatabase
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+    command: postgres -c log_statement=mod -c log_min_messages=fatal
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql
+
+  spring-app:
+    image: "ghcr.io/open-cqrs/opencqrs-samples-asyncqueries:latest"
+    depends_on:
+      - postgres
+      - esdb
+    environment:
+      ESDB_SERVER_URI: http://esdb:3000
+      ESDB_SERVER_API_TOKEN: secret
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/mydatabase
+      SPRING_DATASOURCE_USERNAME: myuser
+      SPRING_DATASOURCE_PASSWORD: mypassword
+      SPRING_SQL_INIT_MODE: never
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_SHOW_SQL: false
+    deploy:
+      replicas: 3
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - spring-app
+
+volumes:
+  postgres_data:
+  event-data:

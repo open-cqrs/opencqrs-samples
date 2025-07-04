@@ -1,0 +1,225 @@
+{
+  "name": "OpenCQRS Sample - Subscription Queries",
+  "version": "1",
+  "items": [
+    {
+      "type": "http",
+      "name": "Get Reader Overview",
+      "filename": "Get Reader Overview.bru",
+      "seq": 2,
+      "request": {
+        "url": "http://localhost:8080/readers/:id",
+        "method": "GET",
+        "headers": [
+          {
+            "name": "Content-Type",
+            "value": "application/json",
+            "enabled": false
+          }
+        ],
+        "params": [
+          {
+            "name": "id",
+            "value": "",
+            "type": "path",
+            "enabled": true
+          }
+        ],
+        "body": {
+          "mode": "json",
+          "json": "",
+          "formUrlEncoded": [],
+          "multipartForm": [],
+          "file": []
+        },
+        "script": {},
+        "vars": {},
+        "assertions": [],
+        "tests": "",
+        "docs": "",
+        "auth": {
+          "mode": "none"
+        }
+      }
+    },
+    {
+      "type": "http",
+      "name": "Lend Book",
+      "filename": "Lend Book.bru",
+      "seq": 5,
+      "request": {
+        "url": "http://localhost:8080/books/lend",
+        "method": "POST",
+        "headers": [],
+        "params": [],
+        "body": {
+          "mode": "json",
+          "json": "{\n    \"id\": \"{{id}}\",\n    \"isbn\": \"{{isbn}}\"\n}",
+          "formUrlEncoded": [],
+          "multipartForm": [],
+          "file": []
+        },
+        "script": {},
+        "vars": {},
+        "assertions": [],
+        "tests": "",
+        "docs": "",
+        "auth": {
+          "mode": "none"
+        }
+      }
+    },
+    {
+      "type": "http",
+      "name": "Purchase Book (Harry Potter 1)",
+      "filename": "Purchase Book (Harry Potter 1).bru",
+      "seq": 4,
+      "request": {
+        "url": "http://localhost:8080/books/purchase",
+        "method": "POST",
+        "headers": [
+          {
+            "name": "Content-Type",
+            "value": "application/json",
+            "enabled": true
+          }
+        ],
+        "params": [],
+        "body": {
+          "mode": "json",
+          "json": "{\n    \"isbn\": \"978-0747532743\",\n    \"title\": \"Harry Potter and the Philosophers Stone\",\n    \"author\": \"J.K. Rowling\"\n}",
+          "formUrlEncoded": [],
+          "multipartForm": [],
+          "file": []
+        },
+        "script": {},
+        "vars": {},
+        "assertions": [],
+        "tests": "",
+        "docs": "",
+        "auth": {
+          "mode": "none"
+        }
+      }
+    },
+    {
+      "type": "http",
+      "name": "Purchase Book (LOTR)",
+      "filename": "Purchase Book (LOTR).bru",
+      "seq": 3,
+      "request": {
+        "url": "http://localhost:8080/books/purchase",
+        "method": "POST",
+        "headers": [
+          {
+            "name": "Content-Type",
+            "value": "application/json",
+            "enabled": true
+          }
+        ],
+        "params": [],
+        "body": {
+          "mode": "json",
+          "json": "{\n    \"isbn\": \"978-0008471286\",\n    \"title\": \"Lord of the Rings\",\n    \"author\": \"JRR Tolkien\"\n}",
+          "formUrlEncoded": [],
+          "multipartForm": [],
+          "file": []
+        },
+        "script": {},
+        "vars": {},
+        "assertions": [],
+        "tests": "",
+        "docs": "",
+        "auth": {
+          "mode": "none"
+        }
+      }
+    },
+    {
+      "type": "http",
+      "name": "Register New Reader",
+      "filename": "Register New Reader.bru",
+      "seq": 1,
+      "request": {
+        "url": "http://localhost:8080/readers",
+        "method": "POST",
+        "headers": [
+          {
+            "name": "Content-Type",
+            "value": "application/json",
+            "enabled": true
+          }
+        ],
+        "params": [],
+        "body": {
+          "mode": "json",
+          "json": "{\n    \"firstName\" : \"John\",\n    \"lastName\" : \"Doe\"\n}",
+          "formUrlEncoded": [],
+          "multipartForm": [],
+          "file": []
+        },
+        "script": {},
+        "vars": {},
+        "assertions": [],
+        "tests": "",
+        "docs": "",
+        "auth": {
+          "mode": "none"
+        }
+      }
+    },
+    {
+      "type": "http",
+      "name": "Return Book",
+      "filename": "Return Book.bru",
+      "seq": 6,
+      "request": {
+        "url": "http://localhost:8080/books/return",
+        "method": "POST",
+        "headers": [
+          {
+            "name": "Content-Type",
+            "value": "application/json",
+            "enabled": true
+          }
+        ],
+        "params": [],
+        "body": {
+          "mode": "json",
+          "json": "{\n    \"id\": \"{{id}}\",\n    \"isbn\": \"{{isbn}}\"\n}",
+          "formUrlEncoded": [],
+          "multipartForm": [],
+          "file": []
+        },
+        "script": {},
+        "vars": {},
+        "assertions": [],
+        "tests": "",
+        "docs": "",
+        "auth": {
+          "mode": "none"
+        }
+      }
+    }
+  ],
+  "environments": [],
+  "root": {
+    "request": {
+      "auth": {
+        "mode": "none"
+      }
+    },
+    "meta": {
+      "name": "OpenCQRS - Sample 02"
+    }
+  },
+  "brunoConfig": {
+    "version": "1",
+    "name": "OpenCQRS Sample - Subscription Queries",
+    "type": "collection",
+    "ignore": [
+      "node_modules",
+      ".git"
+    ]
+  }
+}

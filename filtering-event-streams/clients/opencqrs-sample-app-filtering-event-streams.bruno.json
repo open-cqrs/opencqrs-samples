@@ -1,0 +1,97 @@
+{
+  "name": "OpenCQRS Sample - Filtering Event Streams",
+  "version": "1",
+  "items": [
+    {
+      "type": "http",
+      "name": "Lend Book",
+      "filename": "Lend Book.bru",
+      "seq": 2,
+      "request": {
+        "url": "http://localhost:8080/books/lend",
+        "method": "POST",
+        "headers": [],
+        "params": [],
+        "body": {
+          "mode": "json",
+          "json": "{\n  \"id\": \"<UUID of copy>\",\n  \"isbn\": \"123-0123456789\"\n}",
+          "formUrlEncoded": [],
+          "multipartForm": [],
+          "file": []
+        },
+        "script": {},
+        "vars": {},
+        "assertions": [],
+        "tests": "",
+        "docs": "",
+        "auth": {
+          "mode": "inherit"
+        }
+      }
+    },
+    {
+      "type": "http",
+      "name": "Purchase Book",
+      "filename": "Purchase Book.bru",
+      "seq": 1,
+      "request": {
+        "url": "http://localhost:8080/books/purchase",
+        "method": "POST",
+        "headers": [],
+        "params": [],
+        "body": {
+          "mode": "json",
+          "json": "{\n  \"isbn\": \"123-0123456789\",\n  \"title\": \"A Book\",\n  \"author\": \"John Doe\",\n  \"numPages\": 123\n}",
+          "formUrlEncoded": [],
+          "multipartForm": [],
+          "file": []
+        },
+        "script": {},
+        "vars": {},
+        "assertions": [],
+        "tests": "",
+        "docs": "",
+        "auth": {
+          "mode": "inherit"
+        }
+      }
+    },
+    {
+      "type": "http",
+      "name": "Return Book",
+      "filename": "Return Book.bru",
+      "seq": 3,
+      "request": {
+        "url": "http://localhost:8080/books/return",
+        "method": "POST",
+        "headers": [],
+        "params": [],
+        "body": {
+          "mode": "json",
+          "json": "{\n  \"id\": \"<UUID of copy>\",\n  \"isbn\": \"123-0123456789\"\n}",
+          "formUrlEncoded": [],
+          "multipartForm": [],
+          "file": []
+        },
+        "script": {},
+        "vars": {},
+        "assertions": [],
+        "tests": "",
+        "docs": "",
+        "auth": {
+          "mode": "inherit"
+        }
+      }
+    }
+  ],
+  "environments": [],
+  "brunoConfig": {
+    "version": "1",
+    "name": "OpenCQRS Sample - Filtering Event Streams",
+    "type": "collection",
+    "ignore": [
+      "node_modules",
+      ".git"
+    ]
+  }
+}
