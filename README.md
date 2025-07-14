@@ -54,7 +54,7 @@ Refer to each app’s individual `README.md` for detailed instructions.
 
 To run the samples locally, ensure the following tools are installed:
 
-- Java 17+
+- Java 21+
 - Docker
 - Docker Compose
 
