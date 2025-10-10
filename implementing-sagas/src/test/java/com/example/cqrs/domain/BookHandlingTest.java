@@ -19,7 +19,7 @@ import java.util.UUID;
 public class BookHandlingTest {
 
     @Test
-    public void willReserveBook(@Autowired CommandHandlingTestFixture<Book, ReserveBookCommand, Boolean> fixture) {
+    public void willReserveBook(@Autowired CommandHandlingTestFixture<ReserveBookCommand> fixture) {
 
         var loanId = UUID.randomUUID();
         var isbn = "012-34567890";
@@ -37,7 +37,7 @@ public class BookHandlingTest {
     }
 
     @Test
-    public void willIgnoreDuplicateReservation(@Autowired CommandHandlingTestFixture<Book, ReserveBookCommand, Boolean> fixture) {
+    public void willIgnoreDuplicateReservation(@Autowired CommandHandlingTestFixture<ReserveBookCommand> fixture) {
 
         var loanId = UUID.randomUUID();
         var isbn = "012-34567890";
@@ -54,7 +54,7 @@ public class BookHandlingTest {
     }
 
     @Test
-    public void willRejectReservation(@Autowired CommandHandlingTestFixture<Book, ReserveBookCommand, Boolean> fixture) {
+    public void willRejectReservation(@Autowired CommandHandlingTestFixture<ReserveBookCommand> fixture) {
 
         var loanId1 = UUID.randomUUID();
         var loanId2 = UUID.randomUUID();

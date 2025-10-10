@@ -17,7 +17,7 @@ import java.util.UUID;
 public class ReaderHandlingTest {
 
     @Test
-    public void willAddLoan(@Autowired CommandHandlingTestFixture<Reader, AddLoanToReaderCommand, Boolean> fixture) {
+    public void willAddLoan(@Autowired CommandHandlingTestFixture<AddLoanToReaderCommand> fixture) {
 
         var readerId = UUID.randomUUID();
         var loanId = UUID.randomUUID();
@@ -35,7 +35,7 @@ public class ReaderHandlingTest {
     }
 
     @Test
-    public void willIgnoreDuplicateLoan(@Autowired CommandHandlingTestFixture<Reader, AddLoanToReaderCommand, Boolean> fixture) {
+    public void willIgnoreDuplicateLoan(@Autowired CommandHandlingTestFixture<AddLoanToReaderCommand> fixture) {
 
         var readerId = UUID.randomUUID();
         var loanId = UUID.randomUUID();
@@ -53,7 +53,7 @@ public class ReaderHandlingTest {
     }
 
     @Test
-    public void willRejectTooManyLoans(@Autowired CommandHandlingTestFixture<Reader, AddLoanToReaderCommand, Boolean> fixture) {
+    public void willRejectTooManyLoans(@Autowired CommandHandlingTestFixture<AddLoanToReaderCommand> fixture) {
 
         var readerId = UUID.randomUUID();
         var loanId1 = UUID.randomUUID();

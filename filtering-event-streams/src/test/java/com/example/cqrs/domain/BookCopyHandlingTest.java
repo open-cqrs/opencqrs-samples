@@ -21,7 +21,7 @@ import java.util.UUID;
 public class BookCopyHandlingTest {
 
     @Test
-    public void willLendBookCopy(@Autowired CommandHandlingTestFixture<BookCopy, LendBookCommand, Void> fixture) {
+    public void willLendBookCopy(@Autowired CommandHandlingTestFixture<LendBookCommand> fixture) {
 
         var id = UUID.randomUUID();
         var isbn = "012-34567890";
@@ -41,7 +41,7 @@ public class BookCopyHandlingTest {
     }
 
     @Test
-    public void willNotLendAlreadyLentCopy(@Autowired CommandHandlingTestFixture<BookCopy, LendBookCommand, Void> fixture) {
+    public void willNotLendAlreadyLentCopy(@Autowired CommandHandlingTestFixture<LendBookCommand> fixture) {
 
         var id = UUID.randomUUID();
         var isbn = "012-34567890";
@@ -59,7 +59,7 @@ public class BookCopyHandlingTest {
     }
 
     @Test
-    public void willReturnBookCopy(@Autowired CommandHandlingTestFixture<BookCopy, ReturnBookCommand, Void> fixture) {
+    public void willReturnBookCopy(@Autowired CommandHandlingTestFixture<ReturnBookCommand> fixture) {
 
         var id = UUID.randomUUID();
         var isbn = "012-34567890";
@@ -80,7 +80,7 @@ public class BookCopyHandlingTest {
     }
 
     @Test
-    public void willNotReturnBookCopyThatIsNotLent(@Autowired CommandHandlingTestFixture<BookCopy, ReturnBookCommand, Void> fixture) {
+    public void willNotReturnBookCopyThatIsNotLent(@Autowired CommandHandlingTestFixture<ReturnBookCommand> fixture) {
 
         var id = UUID.randomUUID();
         var isbn = "012-34567890";

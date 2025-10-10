@@ -23,7 +23,7 @@ public class BookHandlingTest {
     private UUIDGenerator uuidGen;
 
     @Test
-    public void willAddBookInformation(@Autowired CommandHandlingTestFixture<Book, PurchaseBookCommand, UUID> fixture) {
+    public void willAddBookInformation(@Autowired CommandHandlingTestFixture<PurchaseBookCommand> fixture) {
 
         var id = UUID.randomUUID();
 
@@ -43,7 +43,7 @@ public class BookHandlingTest {
     }
 
     @Test
-    public void willNotAddBookInformationWhenItAlreadyExists(@Autowired CommandHandlingTestFixture<Book, PurchaseBookCommand, UUID> fixture) {
+    public void willNotAddBookInformationWhenItAlreadyExists(@Autowired CommandHandlingTestFixture<PurchaseBookCommand> fixture) {
 
         var initialId = UUID.randomUUID();
         var addedId = UUID.randomUUID();
@@ -63,7 +63,7 @@ public class BookHandlingTest {
     }
 
     @Test
-    public void willRejectPurchaseIfTooManyCopies(@Autowired CommandHandlingTestFixture<Book, PurchaseBookCommand, UUID> fixture) {
+    public void willRejectPurchaseIfTooManyCopies(@Autowired CommandHandlingTestFixture<PurchaseBookCommand> fixture) {
 
         var id1 = UUID.randomUUID();
         var id2 = UUID.randomUUID();
