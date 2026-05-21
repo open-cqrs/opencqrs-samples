@@ -73,6 +73,10 @@ The following scenarios are covered:
   Explains how to coordinate workflows across long-running, multi-system transactions are known as **Sagas**.  
   → [View sample](./implementing-sagas)
 
+- **Enforcing Uniqueness**  
+  Enforces a uniqueness invariant across two aggregates via a dedicated index aggregate and asynchronous `@EventHandling`-driven orchestration.  
+  → [View sample](./enforcing-uniqueness)
+
 Each sample application can be run locally via `docker-compose` (see the corresponding `docker-compose.yml` files). Interaction is possible using the included Postman and Bruno API collections.
 
 Refer to each app’s individual `README.md` for detailed instructions.

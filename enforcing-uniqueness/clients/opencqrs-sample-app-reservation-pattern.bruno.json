@@ -1,0 +1,86 @@
+{
+  "name": "OpenCQRS Sample - Reservation Pattern",
+  "version": "1",
+  "items": [
+    {
+      "type": "http",
+      "name": "Register",
+      "filename": "Register.bru",
+      "seq": 1,
+      "request": {
+        "url": "http://localhost:8080/api/user-accounts/register",
+        "method": "POST",
+        "headers": [],
+        "params": [],
+        "body": {
+          "mode": "json",
+          "json": "{\n  \"username\": \"alice\",\n  \"email\": \"alice@example.com\"\n}",
+          "formUrlEncoded": [],
+          "multipartForm": [],
+          "file": []
+        },
+        "script": {},
+        "vars": {},
+        "assertions": [],
+        "tests": "",
+        "docs": "",
+        "auth": {
+          "mode": "inherit"
+        }
+      }
+    },
+    {
+      "type": "http",
+      "name": "Change Email",
+      "filename": "Change Email.bru",
+      "seq": 2,
+      "request": {
+        "url": "http://localhost:8080/api/user-accounts/alice/change-email",
+        "method": "POST",
+        "headers": [],
+        "params": [],
+        "body": {
+          "mode": "json",
+          "json": "{\n  \"newEmail\": \"alice-new@example.com\"\n}",
+          "formUrlEncoded": [],
+          "multipartForm": [],
+          "file": []
+        },
+        "script": {},
+        "vars": {},
+        "assertions": [],
+        "tests": "",
+        "docs": "",
+        "auth": {
+          "mode": "inherit"
+        }
+      }
+    },
+    {
+      "type": "http",
+      "name": "Get User Account",
+      "filename": "Get User Account.bru",
+      "seq": 3,
+      "request": {
+        "url": "http://localhost:8080/api/user-accounts/alice",
+        "method": "GET",
+        "headers": [],
+        "params": [],
+        "body": {
+          "mode": "none",
+          "formUrlEncoded": [],
+          "multipartForm": [],
+          "file": []
+        },
+        "script": {},
+        "vars": {},
+        "assertions": [],
+        "tests": "",
+        "docs": "",
+        "auth": {
+          "mode": "inherit"
+        }
+      }
+    }
+  ]
+}

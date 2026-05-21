@@ -1,0 +1,19 @@
+services:
+  eventstore:
+    image: docker.io/thenativeweb/eventsourcingdb:1.2.0
+    container_name: enforcing-uniqueness-eventstore
+    command:
+      - run
+      - --api-token=secret
+      - --data-directory-temporary
+      - --http-enabled=true
+      - --https-enabled=false
+      - --with-ui
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/v1/ping || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s

@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: enforcing-uniqueness
+
+  mvc:
+    problemdetails:
+      enabled: true
+
+server:
+  port: 8080
+
+esdb:
+  server:
+    uri: http://localhost:3000
+    api-token: secret
+
+opencqrs:
+  event-handling:
+    standard:
+      retry:
+        policy: exponential_backoff
+        initial-interval: 1s
+        max-attempts: 3
+    groups:
+      user:
+        retry:
+          policy: exponential_backoff
+          initial-interval: 1s
+          max-attempts: 5
