@@ -1,0 +1,417 @@
+{
+  "name": "OpenCQRS Sample - Optimistic Locking",
+  "version": "1",
+  "items": [
+    {
+      "type": "http",
+      "name": "01. Purchase Book",
+      "filename": "01. Purchase Book.bru",
+      "seq": 1,
+      "request": {
+        "url": "http://localhost:8080/books",
+        "method": "POST",
+        "headers": [
+          {
+            "name": "Content-Type",
+            "value": "application/json",
+            "enabled": true
+          }
+        ],
+        "params": [],
+        "body": {
+          "mode": "json",
+          "json": "{\n  \"isbn\": \"{{isbn}}\",\n  \"title\": \"The Lord of the Rings\",\n  \"authors\": [\"J.R.R. Tolkien\"]\n}",
+          "formUrlEncoded": [],
+          "multipartForm": [],
+          "file": []
+        },
+        "script": {},
+        "vars": {},
+        "assertions": [],
+        "tests": "",
+        "docs": "Creates a new Book on the parent subject `/books/{isbn}` (PRISTINE precondition rejects duplicates with 409). Expect 201.",
+        "auth": {
+          "mode": "none"
+        }
+      }
+    },
+    {
+      "type": "http",
+      "name": "02. Read Book - capture V1",
+      "filename": "02. Read Book - capture V1.bru",
+      "seq": 2,
+      "request": {
+        "url": "http://localhost:8080/books/{{isbn}}",
+        "method": "GET",
+        "headers": [],
+        "params": [],
+        "body": {
+          "mode": "none",
+          "json": "",
+          "formUrlEncoded": [],
+          "multipartForm": [],
+          "file": []
+        },
+        "script": {},
+        "vars": {},
+        "assertions": [],
+        "tests": "const body = res.getBody();\nbru.setVar('version', body.version);\nbru.setVar('staleVersion', body.version);\n",
+        "docs": "Reads from the projection. Captures `version` (also pinned as `staleVersion` for step 06).",
+        "auth": {
+          "mode": "none"
+        }
+      }
+    },
+    {
+      "type": "http",
+      "name": "03. Edit with bogus version (412)",
+      "filename": "03. Edit with bogus version (412).bru",
+      "seq": 3,
+      "request": {
+        "url": "http://localhost:8080/books",
+        "method": "PUT",
+        "headers": [
+          {
+            "name": "Content-Type",
+            "value": "application/json",
+            "enabled": true
+          }
+        ],
+        "params": [],
+        "body": {
+          "mode": "json",
+          "json": "{\n  \"isbn\": \"{{isbn}}\",\n  \"title\": \"Should Not Apply\",\n  \"authors\": [\"Nobody\"],\n  \"expectedVersion\": \"this-is-not-a-real-event-id\"\n}",
+          "formUrlEncoded": [],
+          "multipartForm": [],
+          "file": []
+        },
+        "script": {},
+        "vars": {},
+        "assertions": [],
+        "tests": "",
+        "docs": "The handler compares `expectedVersion` against the current Book version. Garbage in -> 412 Precondition Failed.",
+        "auth": {
+          "mode": "none"
+        }
+      }
+    },
+    {
+      "type": "http",
+      "name": "04. Edit with current version V1 (204)",
+      "filename": "04. Edit with current version V1 (204).bru",
+      "seq": 4,
+      "request": {
+        "url": "http://localhost:8080/books",
+        "method": "PUT",
+        "headers": [
+          {
+            "name": "Content-Type",
+            "value": "application/json",
+            "enabled": true
+          }
+        ],
+        "params": [],
+        "body": {
+          "mode": "json",
+          "json": "{\n  \"isbn\": \"{{isbn}}\",\n  \"title\": \"The Fellowship of the Ring\",\n  \"authors\": [\"J.R.R. Tolkien\"],\n  \"expectedVersion\": \"{{version}}\"\n}",
+          "formUrlEncoded": [],
+          "multipartForm": [],
+          "file": []
+        },
+        "script": {},
+        "vars": {},
+        "assertions": [],
+        "tests": "",
+        "docs": "Happy path. The parent stream advances; the next read will return a new event id.",
+        "auth": {
+          "mode": "none"
+        }
+      }
+    },
+    {
+      "type": "http",
+      "name": "05. Read Book - capture V2",
+      "filename": "05. Read Book - capture V2.bru",
+      "seq": 5,
+      "request": {
+        "url": "http://localhost:8080/books/{{isbn}}",
+        "method": "GET",
+        "headers": [],
+        "params": [],
+        "body": {
+          "mode": "none",
+          "json": "",
+          "formUrlEncoded": [],
+          "multipartForm": [],
+          "file": []
+        },
+        "script": {},
+        "vars": {},
+        "assertions": [],
+        "tests": "const body = res.getBody();\nbru.setVar('version', body.version);\n",
+        "docs": "Refresh `version` to the new tip (V2). `staleVersion` keeps pointing at V1 from step 02.",
+        "auth": {
+          "mode": "none"
+        }
+      }
+    },
+    {
+      "type": "http",
+      "name": "06. Edit with stale version V1 (412)",
+      "filename": "06. Edit with stale version V1 (412).bru",
+      "seq": 6,
+      "request": {
+        "url": "http://localhost:8080/books",
+        "method": "PUT",
+        "headers": [
+          {
+            "name": "Content-Type",
+            "value": "application/json",
+            "enabled": true
+          }
+        ],
+        "params": [],
+        "body": {
+          "mode": "json",
+          "json": "{\n  \"isbn\": \"{{isbn}}\",\n  \"title\": \"Stale Update Attempt\",\n  \"authors\": [\"Nobody\"],\n  \"expectedVersion\": \"{{staleVersion}}\"\n}",
+          "formUrlEncoded": [],
+          "multipartForm": [],
+          "file": []
+        },
+        "script": {},
+        "vars": {},
+        "assertions": [],
+        "tests": "",
+        "docs": "Demonstrates the lost-update prevention: a client that read V1 cannot overwrite V2.",
+        "auth": {
+          "mode": "none"
+        }
+      }
+    },
+    {
+      "type": "http",
+      "name": "07. Edit with current version V2 (204)",
+      "filename": "07. Edit with current version V2 (204).bru",
+      "seq": 7,
+      "request": {
+        "url": "http://localhost:8080/books",
+        "method": "PUT",
+        "headers": [
+          {
+            "name": "Content-Type",
+            "value": "application/json",
+            "enabled": true
+          }
+        ],
+        "params": [],
+        "body": {
+          "mode": "json",
+          "json": "{\n  \"isbn\": \"{{isbn}}\",\n  \"title\": \"The Fellowship of the Ring (Revised)\",\n  \"authors\": [\"J.R.R. Tolkien\"],\n  \"expectedVersion\": \"{{version}}\"\n}",
+          "formUrlEncoded": [],
+          "multipartForm": [],
+          "file": []
+        },
+        "script": {},
+        "vars": {},
+        "assertions": [],
+        "tests": "",
+        "docs": "Happy path. Stream advances to V3.",
+        "auth": {
+          "mode": "none"
+        }
+      }
+    },
+    {
+      "type": "http",
+      "name": "08. Read Book - capture V3",
+      "filename": "08. Read Book - capture V3.bru",
+      "seq": 8,
+      "request": {
+        "url": "http://localhost:8080/books/{{isbn}}",
+        "method": "GET",
+        "headers": [],
+        "params": [],
+        "body": {
+          "mode": "none",
+          "json": "",
+          "formUrlEncoded": [],
+          "multipartForm": [],
+          "file": []
+        },
+        "script": {},
+        "vars": {},
+        "assertions": [],
+        "tests": "const body = res.getBody();\nbru.setVar('version', body.version);\n",
+        "docs": "Refresh `version` to V3.",
+        "auth": {
+          "mode": "none"
+        }
+      }
+    },
+    {
+      "type": "http",
+      "name": "09. Edit with current version V3 (204)",
+      "filename": "09. Edit with current version V3 (204).bru",
+      "seq": 9,
+      "request": {
+        "url": "http://localhost:8080/books",
+        "method": "PUT",
+        "headers": [
+          {
+            "name": "Content-Type",
+            "value": "application/json",
+            "enabled": true
+          }
+        ],
+        "params": [],
+        "body": {
+          "mode": "json",
+          "json": "{\n  \"isbn\": \"{{isbn}}\",\n  \"title\": \"The Lord of the Rings - One-Volume Edition\",\n  \"authors\": [\"J.R.R. Tolkien\"],\n  \"expectedVersion\": \"{{version}}\"\n}",
+          "formUrlEncoded": [],
+          "multipartForm": [],
+          "file": []
+        },
+        "script": {},
+        "vars": {},
+        "assertions": [],
+        "tests": "",
+        "docs": "Third successful correction. Demonstrates the version progression V1 -> V2 -> V3 -> V4.",
+        "auth": {
+          "mode": "none"
+        }
+      }
+    },
+    {
+      "type": "http",
+      "name": "10. Edit nonexistent book (404)",
+      "filename": "10. Edit nonexistent book (404).bru",
+      "seq": 10,
+      "request": {
+        "url": "http://localhost:8080/books",
+        "method": "PUT",
+        "headers": [
+          {
+            "name": "Content-Type",
+            "value": "application/json",
+            "enabled": true
+          }
+        ],
+        "params": [],
+        "body": {
+          "mode": "json",
+          "json": "{\n  \"isbn\": \"000-no-such-book\",\n  \"title\": \"Ghost\",\n  \"authors\": [\"Nobody\"],\n  \"expectedVersion\": \"any\"\n}",
+          "formUrlEncoded": [],
+          "multipartForm": [],
+          "file": []
+        },
+        "script": {},
+        "vars": {},
+        "assertions": [],
+        "tests": "",
+        "docs": "EXISTS precondition is checked by the framework before the handler. Unknown subject -> 404 Not Found.",
+        "auth": {
+          "mode": "none"
+        }
+      }
+    },
+    {
+      "type": "http",
+      "name": "11. Purchase duplicate ISBN (409)",
+      "filename": "11. Purchase duplicate ISBN (409).bru",
+      "seq": 11,
+      "request": {
+        "url": "http://localhost:8080/books",
+        "method": "POST",
+        "headers": [
+          {
+            "name": "Content-Type",
+            "value": "application/json",
+            "enabled": true
+          }
+        ],
+        "params": [],
+        "body": {
+          "mode": "json",
+          "json": "{\n  \"isbn\": \"{{isbn}}\",\n  \"title\": \"Duplicate Purchase Attempt\",\n  \"authors\": [\"Whoever\"]\n}",
+          "formUrlEncoded": [],
+          "multipartForm": [],
+          "file": []
+        },
+        "script": {},
+        "vars": {},
+        "assertions": [],
+        "tests": "",
+        "docs": "PRISTINE precondition rejects duplicate purchases on the same subject -> 409 Conflict.",
+        "auth": {
+          "mode": "none"
+        }
+      }
+    },
+    {
+      "type": "http",
+      "name": "12. List all books",
+      "filename": "12. List all books.bru",
+      "seq": 12,
+      "request": {
+        "url": "http://localhost:8080/books",
+        "method": "GET",
+        "headers": [],
+        "params": [],
+        "body": {
+          "mode": "none",
+          "json": "",
+          "formUrlEncoded": [],
+          "multipartForm": [],
+          "file": []
+        },
+        "script": {},
+        "vars": {},
+        "assertions": [],
+        "tests": "",
+        "docs": "Lists the projection. The single book entry shows the latest title and the current version (event id at the parent stream tip).",
+        "auth": {
+          "mode": "none"
+        }
+      }
+    }
+  ],
+  "environments": [
+    {
+      "variables": [
+        {
+          "name": "isbn",
+          "value": "978-0-261-10295-4",
+          "enabled": true,
+          "secret": false,
+          "type": "text"
+        },
+        {
+          "name": "version",
+          "value": "",
+          "enabled": true,
+          "secret": false,
+          "type": "text"
+        },
+        {
+          "name": "staleVersion",
+          "value": "",
+          "enabled": true,
+          "secret": false,
+          "type": "text"
+        }
+      ],
+      "name": "local"
+    }
+  ],
+  "brunoConfig": {
+    "version": "1",
+    "name": "sample-app-optimistic-locking",
+    "type": "collection",
+    "ignore": [
+      "node_modules",
+      ".git"
+    ],
+    "size": 0,
+    "filesCount": 12
+  }
+}

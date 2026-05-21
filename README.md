@@ -73,6 +73,10 @@ The following scenarios are covered:
   Explains how to coordinate workflows across long-running, multi-system transactions are known as **Sagas**.  
   → [View sample](./implementing-sagas)
 
+- **Applying Optimistic Locking**  
+  Derives the aggregate version from the id of its latest event and rejects writes whose declared version is stale.  
+  → [View sample](./applying-optimistic-locking)
+
 Each sample application can be run locally via `docker-compose` (see the corresponding `docker-compose.yml` files). Interaction is possible using the included Postman and Bruno API collections.
 
 Refer to each app’s individual `README.md` for detailed instructions.

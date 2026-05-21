@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: applying-optimistic-locking
+
+  mvc:
+    problemdetails:
+      enabled: true
+
+server:
+  port: 8080
+
+esdb:
+  server:
+    uri: http://localhost:3000
+    api-token: secret
+
+opencqrs:
+  command-handling:
+    retry:
+      max-attempts: 1
+  event-handling:
+    standard:
+      retry:
+        policy: none
