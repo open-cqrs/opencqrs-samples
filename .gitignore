@@ -9,3 +9,9 @@ build
 
 # Misc.
 .DS_Store
+
+# Nix
+flake.lock
+
+# direnv
+.direnv
